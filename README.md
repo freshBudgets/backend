@@ -7,9 +7,8 @@ Links
 * https://nodejs.org/en/docs/guides/
 * https://mongodb.github.io/node-mongodb-native/3.1/quick-start/quick-start/
 
-## Getting Started
+### Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ## Prerequisites
 
