@@ -37,8 +37,6 @@ until finished
 
 ## Running the server
 
-Explain what these tests test and why
-
 ```
 Give an example
 ```
