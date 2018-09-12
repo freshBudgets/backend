@@ -10,7 +10,7 @@ Links
 
 ## Prerequisites
 
-Installing npm packages
+...
 
 ```
 Give examples
