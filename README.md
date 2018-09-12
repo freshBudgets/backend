@@ -1,6 +1,6 @@
 # FreshBudgets
 
-One Paragraph of project description goes here
+Instructions / notes for running and testing the backend server
 
 ## Getting Started
 
