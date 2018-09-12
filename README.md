@@ -7,8 +7,6 @@ Links
 * https://nodejs.org/en/docs/guides/
 * https://mongodb.github.io/node-mongodb-native/3.1/quick-start/quick-start/
 
-### Getting Started
-
 
 ## Prerequisites
 
