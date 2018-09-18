@@ -35,32 +35,34 @@ const getAll = (req, res) => {
 }
 
 const getOne = (req, res) => {
-  res.json({
+  let data = {
     success: true,
-    1: {
-        id: 1,
-        name: 'Food',
-        total: 25.00,
-        spent: 19.56,
-        transactions: [
-          {
-            from: 'Payless',
-            amount: 4.56
-          },
-          {
-            from: 'Walmart',
-            amount: 5.54,
-          },
-          {
-            from: 'Target',
-            amount: 9.21
-          }, {
-            from: 'BP',
-            amount: .25
-          }
-        ]
-      }
-  })
+  }
+
+  data[req.params.id] = {
+      id: req.params.id,
+      name: 'Food',
+      total: 25.00,
+      spent: 19.56,
+      transactions: [
+        {
+          from: 'Payless',
+          amount: 4.56
+        },
+        {
+          from: 'Walmart',
+          amount: 5.54,
+        },
+        {
+          from: 'Target',
+          amount: 9.21
+        }, {
+          from: 'BP',
+          amount: .25
+        }
+      ]
+    }
+  res.json(data)
 }
 
 module.exports = { getAll, getOne };
