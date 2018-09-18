@@ -41,7 +41,24 @@ const getOne = (req, res) => {
         id: 1,
         name: 'Food',
         total: 25.00,
-        spent: 19.56
+        spent: 19.56,
+        transactions: [
+          {
+            from: 'Payless',
+            amount: 4.56
+          },
+          {
+            from: 'Walmart',
+            amount: 5.54,
+          },
+          {
+            from: 'Target',
+            amount: 9.21
+          }, {
+            from: 'BP',
+            amount: .25
+          }
+        ]
       }
   })
 }
