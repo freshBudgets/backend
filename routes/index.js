@@ -3,6 +3,7 @@ const router = require('express').Router();
 router.get('/is_up', (req, res) => { res.json({success: true})});
 router.post('/signup', auth.signup);
 router.post('/login', auth.login);
+router.post('/verifyPhone', auth.verifyPhone);
 
 /********************
  * PROTECTED ROUTES *

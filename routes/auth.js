@@ -103,10 +103,20 @@ const login = function(req, res, next) {
   })(req, res, next);
 }
 
+const verifyPhone = function (req, res) {
+  let code = req.body.code;
+
+  res.json({
+    success: true,
+    code
+  })
+}
+
 var functions = {
-    login: login,
-    signup: signup,
-    verifyToken: verifyToken
+    login,
+    signup,
+    verifyToken,
+    verifyPhone
 };
 
 module.exports = functions;
