@@ -31,5 +31,16 @@ UserSchema.methods.createJWT = function() {
   }, config.jwtSecret, { expiresIn: config.jwtExpireTime });
 }
 
+UserSchema.methods.toJSON = function() {
+  return {
+    _id: this._id,
+    email: this.email,
+    firstName: this.firstName,
+    lastName: this.lastName,
+    phoneNumber: this.phoneNumber,
+    isVerified: this.isVerified
+  }
+}
+
 UserSchema.plugin(uniqueValidator, "already taken.");
 mongoose.model('Users', UserSchema);

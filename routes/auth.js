@@ -37,7 +37,6 @@ const verifyToken = function(req, res, next) {
 
 const signup = function(req, res) {
     var params = req.body;
-
     //Check if all needed information is sent in request
     if (!params.phoneNumber || !params.firstName || !params.lastName || !params.email || !params.password) {
         res.json({
@@ -45,15 +44,11 @@ const signup = function(req, res) {
             message: 'Not enough information to create a new account'
         });
     }
-
-    const newUser = new Users();
-    newUser.firstName = params.firstName;
-    newUser.lastName = params.lastName;
-    newUser.phoneNumber = params.phoneNumber;
-    newUser.email = params.email;
+    //Create new user from request params
+    const newUser = new Users(params);
     newUser.setPassword(params.password);
     newUser.isVerified = false;
-
+    //Save new user
     return newUser.save(function(err) {
       if (err) {
         console.log(err.errors);
@@ -64,16 +59,11 @@ const signup = function(req, res) {
         });
       }
       else {
-        const retUser = {
-          firstName: params.firstName,
-          lastName: params.lastName,
-          isVerified: false
-        }
         res.json({
           success: true,
           message: "user successfully created",
           token: newUser.createJWT(),
-          user: retUser
+          user: newUser.toJSON()
         });
       }
     });
@@ -87,7 +77,6 @@ const login = function(req, res, next) {
         message: 'Insufficient login information'
     });
   }
-
   return passport.authenticate('local', { session: false }, function(err, user, info) {
     if (err) {
       return next(err);
@@ -97,7 +86,8 @@ const login = function(req, res, next) {
       res.json({
         success: true,
         message: "user successfully signed in",
-        token: user.token
+        token: user.token,
+        user: user.toJSON()
       })
     }
     else {
@@ -106,13 +96,11 @@ const login = function(req, res, next) {
         message: "failed to sign in user",
       });
     }
-
   })(req, res, next);
 }
 
 const verifyPhone = function (req, res) {
   let code = req.body.code;
-
   res.json({
     success: true,
     code
