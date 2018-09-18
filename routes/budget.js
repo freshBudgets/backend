@@ -21,7 +21,7 @@ const getAll = (req, res) => {
       3: {
         id: 3,
         name: 'Alcohol',
-        total: 300.00
+        total: 300.00,
         spent: 354.00
       },
       4: {
