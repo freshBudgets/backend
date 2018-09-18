@@ -52,21 +52,28 @@ const signup = function(req, res) {
     newUser.phoneNumber = params.phoneNumber;
     newUser.email = params.email;
     newUser.setPassword(params.password);
+    newUser.isVerified = false;
 
     return newUser.save(function(err) {
       if (err) {
         console.log(err.errors);
         res.json({
           success: false,
-          message: "failed to save user.",
+          errorMap: { message: "failed to save user." },
           token: null
         });
       }
       else {
+        const retUser = {
+          firstName: params.firstName,
+          lastName: params.lastName,
+          isVerified: false
+        }
         res.json({
           success: true,
           message: "user successfully created",
-          token: newUser.createJWT()
+          token: newUser.createJWT(),
+          user: retUser
         });
       }
     });

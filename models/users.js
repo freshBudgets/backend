@@ -12,7 +12,8 @@ const UserSchema = new Schema({
   lastName: String,
   email: {type: String, unique: true},
   phoneNumber: {type: Number, unique: true},
-  password: String
+  password: String,
+  isVerified: Boolean
 });
 
 UserSchema.methods.setPassword = function(password) {
