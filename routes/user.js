@@ -4,6 +4,7 @@ const user = (req, res) => {
     user: {
       firstName: 'Cole',
       lastName: 'Johnson',
+      isVerified: false
     }
   })
 };
