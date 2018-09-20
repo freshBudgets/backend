@@ -7,6 +7,8 @@ const Users = mongoose.model('Users');
 const mongoURI = config.mongoURI;
 const jwtSecret = config.jwtSecret;
 
+//this is a change
+
 const getToken = function(req) {
   return req.header('token');
 }
