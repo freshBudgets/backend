@@ -3,7 +3,8 @@ const uniqueValidator = require('mongoose-unique-validator');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const config = require('../config');
+const jwtSecret = process.env.JWT_SECRET;
+const jwtExpireTime = parseInt(process.env.JWT_EXPIRE_TIME);
 
 const Schema = mongoose.Schema;
 
@@ -27,8 +28,9 @@ UserSchema.methods.validatePassword = function(password) {
 UserSchema.methods.createJWT = function() {
   return jwt.sign( {
     phoneNumber: this.phoneNumber,
-    email: this.email
-  }, config.jwtSecret, { expiresIn: config.jwtExpireTime });
+    email: this.email,
+    _id: this._id
+  }, jwtSecret, { expiresIn: jwtExpireTime });
 }
 
 UserSchema.methods.toJSON = function() {

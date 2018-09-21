@@ -1,12 +1,11 @@
-const config = require('../config');
-const twilioClient = require('twilio')(config.twilioSID, config.twilioToken)
+const twilioClient = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 
 const sendTestSMS = function(req,res){
   console.log(req.body);
   twilioClient.messages.create({
       body: 'whats up this is a freshbudgets twilio test',
-      from: config.twilioPhoneNumber,
+      from: process.env.TWILIO_PHONE_NUMBER,
       to: '+1' + req.body.phoneNumber
     })
     .then(message => {
