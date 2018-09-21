@@ -10,37 +10,43 @@ Links
 
 ## Prerequisites
 
-...
+Before running the server
 
 ```
-Give examples
+npm install
 ```
 
 ## Installing
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
+Installing npm packages
 
 ```
-Give the example
+npm install <package name> 
 ```
 
-And repeat
+To save the node package to package.json
 
 ```
-until finished
+npm install --save <package name>
 ```
 
-## Running the server
+
+## Running the server locally
+
+To run the server locally, within backend/
 
 ```
-Give an example
+node app.js
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+Now you can test GETs, POSTs, etc. with Postman
 
 ## Testing with Postman
 
-...
+First run the server locally. Within Postman set the requrest url to 
 
+```
+localhost:5000/api/...
+```
+
+replace ... with whatever route you wish to access. If sending a POST, the contents sent are in the Body section. Tokens go in the header
