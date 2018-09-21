@@ -2,9 +2,6 @@ const config = require('../config');
 const twilioClient = require('twilio')(config.twilioSID, config.twilioToken)
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 
-//Used just as an example on how to send twilio messages
-
-
 const sendTestSMS = function(req,res){
   console.log(req.body);
   twilioClient.messages.create({
