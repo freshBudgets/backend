@@ -5,6 +5,10 @@ router.post('/signup', auth.signup);
 router.post('/login', auth.login);
 router.post('/verifyPhone', auth.verifyPhone);
 
+const sms = require('./sms');
+router.post('/sms/receive', sms.respondToSMS);
+router.post('/sms/sendTest', sms.sendTestSMS)
+
 /********************
  * PROTECTED ROUTES *
  *********************/
