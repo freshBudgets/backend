@@ -4,12 +4,12 @@ const bodyParser      = require('body-parser');
 const cors            = require('cors');
 const session         = require('express-session');
 const morgan          = require('morgan');
-const config          = require('./config');
 const passport        = require('passport');
 const LocalStrategy   = require('passport-local').Strategy;
 const port            = process.env.PORT || 5000;
 
 //Initiate app
+require('dotenv').config();
 const app = express();
 
 app.use(cors());
@@ -19,7 +19,7 @@ app.use(morgan('dev'));
 //app.use(session({ secret: 'freshbudgets-TOKEN', cookie: { maxAge: 60000 }}));
 
 //Connect to database
-mongoose.connect(config.mongoURI, { useNewUrlParser: true });
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true });
 mongoose.set('debug', true); //Verbose logging in console
 
 //Models
