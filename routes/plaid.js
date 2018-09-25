@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const User = mongoose.model('Users');
 const PlaidInstitution = mongoose.model('PlaidInstitutions');
 
+const PLAID_WEBHOOK_URL = 'https://api.freshbudgets.com/api/plaid/transaction';
 const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID_SB;
 const PLAID_DEV_SECRET = process.env.PLAID_DEV_SECRET_SB;
 const PLAID_PUBLIC_ID = process.env.PLAID_PUBLIC_ID_SB;
@@ -15,7 +16,7 @@ const linkPlaidAccount = function(req, res) {
     const accountIDs = req.body.accountIDs;
     const publicToken = req.body.publicToken;
    
-    plaidClient.exchangePublicToken(publicToken, function(err, res) {
+    plaidClient.exchangePublicToken(publicToken, function(err, result) {
         if (err) {
             if (plaid.isPlaidError(err)) {
               console.log(err.error_code + ': ' + err.error_message);
@@ -28,6 +29,7 @@ const linkPlaidAccount = function(req, res) {
             });
         }
         const accessToken = res.access_token;
+        plaidClient.updateItemWebhook(accessToken, PLAID_WEBHOOK_URL);
         User.findById(userID, function(err, user) {
             var plaidInstitution = new PlaidInstitution();
             plaidInstitution.accessToken = accessToken;

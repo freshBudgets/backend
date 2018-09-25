@@ -15,19 +15,20 @@ const verifyToken = function(req, res, next) {
   if (token) {
     jwt.verify(token, jwtSecret, function(err, decoded) {
       if(err) {
-        res.json({
+        return res.json({
           success: false,
           message: "Failed to authenticate token."
         });
       }
       else {
         req.decoded = decoded;
+        console.log('hit');
         next();
       }
     });
   }
   else {
-    res.json({
+    return res.json({
       success: false,
       message: "No token provided"
     });

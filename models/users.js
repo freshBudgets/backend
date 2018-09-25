@@ -6,11 +6,7 @@ const jwtSecret = process.env.JWT_SECRET;
 const jwtExpireTime = parseInt(process.env.JWT_EXPIRE_TIME);
 
 const Schema = mongoose.Schema;
-
-const PlaidInstitutionsSchema = new Schema({
-  accessToken: String,
-  accountIDs: [String]
-});
+const PlaidInstitutionsSchema = mongoose.model('PlaidInstitutions').schema;
 
 const UserSchema = new Schema({
   firstName: String,
@@ -47,8 +43,7 @@ UserSchema.methods.toJSON = function() {
     phoneNumber: this.phoneNumber,
     isVerified: this.isVerified
   };
-}
+};
 
 UserSchema.plugin(uniqueValidator, "already taken.");
 mongoose.model('Users', UserSchema);
-mongoose.model('PlaidInstitutions', PlaidInstitutionsSchema);
