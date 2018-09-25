@@ -7,7 +7,7 @@ router.post('/verifyPhone', auth.verifyPhone);
 
 const sms = require('./sms');
 router.post('/sms/receive', sms.respondToSMS);
-router.post('/sms/sendTest', sms.sendTestSMS)
+router.post('/sms/sendTest', sms.sendTestSMS);
 
 /********************
  * PROTECTED ROUTES *
@@ -20,5 +20,9 @@ router.get('/user', user.user);
 const budget = require('./budget');
 router.get('/budget', budget.getAll);
 router.get('/budget/:id', budget.getOne);
+
+const plaid = require('./plaid');
+router.post('/plaid/link', plaid.linkPlaidAccount);
+
 
 module.exports = router;

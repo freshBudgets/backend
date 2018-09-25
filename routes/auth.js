@@ -1,16 +1,14 @@
 const mongoose = require('mongoose');
 const passport = require('passport');
-const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const Users = mongoose.model('Users');
-const mongoURI = process.env.MONGO_URI;
 const jwtSecret = process.env.JWT_SECRET;
 
 //this is a change
 
 const getToken = function(req) {
   return req.header('token');
-}
+};
 
 const verifyToken = function(req, res, next) {
   var token = getToken(req);
@@ -34,7 +32,7 @@ const verifyToken = function(req, res, next) {
       message: "No token provided"
     });
   }
-}
+};
 
 const signup = function(req, res) {
     var params = req.body;
@@ -68,7 +66,7 @@ const signup = function(req, res) {
         });
       }
     });
-}
+};
 
 const login = function(req, res, next) {
   var params = req.body;
@@ -78,7 +76,7 @@ const login = function(req, res, next) {
         message: 'Insufficient login information'
     });
   }
-  return passport.authenticate('local', { session: false }, function(err, user, info) {
+  return passport.authenticate('local', { session: false }, function(err, user) {
     if (err) {
       return next(err);
     }
@@ -98,15 +96,15 @@ const login = function(req, res, next) {
       });
     }
   })(req, res, next);
-}
+};
 
 const verifyPhone = function (req, res) {
   let code = req.body.code;
   res.json({
     success: true,
     code
-  })
-}
+  });
+};
 
 var functions = {
     login,
