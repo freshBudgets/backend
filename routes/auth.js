@@ -28,7 +28,7 @@ const verifyToken = function(req, res, next) {
     });
   }
   else {
-    return res.json({
+    return res.status(403).send({
       success: false,
       message: "No token provided"
     });

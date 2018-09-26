@@ -4,7 +4,8 @@ const Schema = mongoose.Schema;
 
 const PlaidInstitutionsSchema = new Schema({
     accessToken: String,
-    accountIDs: [String]
+    accountIDs: [String],
+    user: {type: Schema.Types.ObjectId, ref: 'Users'}
   });
 
 mongoose.model('PlaidInstitutions', PlaidInstitutionsSchema);
