@@ -1,10 +1,9 @@
 const plaid = require('plaid');
 const mongoose = require('mongoose');
 
-const User = mongoose.model('Users');
 const PlaidInstitution = mongoose.model('PlaidInstitutions');
 
-const PLAID_WEBHOOK_URL = 'https://api.freshbudgets.com/api/plaid/transaction';
+const PLAID_WEBHOOK_URL = 'localhost:5000/api/plaid/transaction';
 const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID_SB;
 const PLAID_DEV_SECRET = process.env.PLAID_DEV_SECRET_SB;
 const PLAID_PUBLIC_ID = process.env.PLAID_PUBLIC_ID_SB;
@@ -16,26 +15,43 @@ const linkPlaidAccount = function(req, res) {
     const accountIDs = req.body.accountIDs;
     const publicToken = req.body.publicToken;
 
-    plaidClient.exchangePublicToken(publicToken, function(err, result) {
-        if (err) {
-            if (plaid.isPlaidError(err)) {
-              console.log(err.error_code + ': ' + err.error_message);
-            } else {
-              console.log(err.toString());
-            }
-            res.json({
-                success: false,
-                message: 'Plaid public token unable to be exchanged for access token.'
+    plaidClient.exchangePublicToken(publicToken).then(result => {
+        const accessToken = result.access_token;
+        plaidClient.updateItemWebhook(accessToken, PLAID_WEBHOOK_URL).then(result => {
+            var plaidAccount = new PlaidInstitution({
+                accessToken: accessToken,
+                accountIDs: accountIDs,
+                user: userID
             });
-        }
-        const accessToken = res.access_token;
-        var plaidAccount = new PlaidInstitution({
-            accessToken: accessToken,
-            accountIDs: accountIDs,
-            user: userID
+            plaidAccount.save(function(err) {
+                if(err) {
+                    res.json({
+                        success: false,
+                        message: 'unable to save plaidInsitution to user'
+                    });
+                }
+                else {
+                    res.json({
+                        success: true,
+                        message: 'saved plaidAccount to user'
+                    });
+                }
+            });
         });
-        console.log(plaidAccount);
-        plaidAccount.save();
+    }).catch(err => {
+        if (err != null) {
+            if (plaid.isPlaidError(err)) {
+              res.json({
+                  success: false,
+                  message: err.error_code + ': ' + err.error_message
+                });
+            } else {
+              res.json({
+                  success:false,
+                  message: err.toString()
+              });
+            }
+          }
     });
 };
 

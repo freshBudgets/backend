@@ -23,6 +23,7 @@ router.get('/budget/:id', budget.getOne);
 
 const plaid = require('./plaid');
 router.post('/plaid/link', plaid.linkPlaidAccount);
+router.post('/plaid/transaction', plaid.handlePlaidTransaction);
 
 
 module.exports = router;
