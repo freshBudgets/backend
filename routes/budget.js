@@ -1,3 +1,8 @@
+//for categories, not sure about this
+const mongoose = require('mongoose');
+const BudgetCategories = mongoose.model('BudgetCategories');
+const User = mongoose.model('Users');
+
 const getAll = (req, res) => {
   res.json({
     success: true,
@@ -63,6 +68,52 @@ const getOne = (req, res) => {
       ]
     }
   res.json(data)
+}
+var createCategory = function(req, res) {
+  const userID = req.decoded._id;
+  const budgetName = req.body.budgetName;
+  const budgetLimit = req.body.budgetLimit;
+
+  User.findById(userID, function(err, user) {
+    if (err){
+      res.json({
+        success: false,
+        message: 'Could not find the user'
+      });
+    }
+    var budgetCategory = new BudgetCategories();
+    budgetCategory.userID = userID;
+    budgetCategory.budgetName = budgetName;
+    budgetCategory.budgetLimit = budgetLimit;
+    budgetCategory.currentAmount = 0;
+    user.budgetCategories.push(budgetCategory);
+    user.save(function(err){
+      if (err){
+        res.json({
+          success: false,
+          message: 'Could not save user with new budget'
+        });
+      }
+      else{
+        res.json({
+          success: true,
+          message: 'Successfully added new budget category!'
+        })
+      }
+      });
+  });
+}
+var createCategory = function(req, res) {
+  //limit or ID? tak to cole about this
+  budgetID = req.body.budgetID
+  newName
+  BudgetCategories.findById(budgetID, function(err, budget) {
+    budget.budgetName = newName;
+    budget
+  }
+});
+var functions = {
+
 }
 
 module.exports = { getAll, getOne };
