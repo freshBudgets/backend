@@ -20,5 +20,6 @@ router.get('/user', user.user);
 const budget = require('./budget');
 router.get('/budget', budget.getAll);
 router.get('/budget/:id', budget.getOne);
+router.post('/budget', budget.createCat);
 
 module.exports = router;
