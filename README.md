@@ -6,6 +6,7 @@ Links
 
 * https://nodejs.org/en/docs/guides/
 * https://mongodb.github.io/node-mongodb-native/3.1/quick-start/quick-start/
+* https://cloud.mongodb.com/v2/5b8727749701993a37d8c670#clusters/detail/Cluster0 (Our MongoDB cloud cluster)
 
 
 ## Prerequisites
