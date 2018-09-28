@@ -14,7 +14,9 @@ const UserSchema = new Schema({
   email: {type: String, unique: true},
   phoneNumber: {type: Number, unique: true},
   password: String,
-  isVerified: Boolean
+  isVerified: Boolean,
+  emailSetting: Boolean,
+  smsSetting: Boolean
 });
 
 UserSchema.methods.setPassword = function(password) {
@@ -40,7 +42,9 @@ UserSchema.methods.toJSON = function() {
     firstName: this.firstName,
     lastName: this.lastName,
     phoneNumber: this.phoneNumber,
-    isVerified: this.isVerified
+    isVerified: this.isVerified,
+    emailSetting: this.emailSetting,
+    smsSetting: this.smsSetting
   }
 }
 
