@@ -7,15 +7,14 @@ const jwtSecret = process.env.JWT_SECRET;
 const jwtExpireTime = parseInt(process.env.JWT_EXPIRE_TIME);
 
 const Schema = mongoose.Schema;
-const BudgetCategoriesSchema = mongoose.models('BudgetCategories').schema;
+//const BudgetCategoriesSchema = mongoose.model('BudgetCategories').schema;
 const UserSchema = new Schema({
   firstName: String,
   lastName: String,
   email: {type: String, unique: true},
   phoneNumber: {type: Number, unique: true},
   password: String,
-  isVerified: Boolean,
-  budgetCategories: [BudgetCategoriesSchema]
+  isVerified: Boolean
 });
 
 UserSchema.methods.setPassword = function(password) {

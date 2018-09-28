@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true });
 mongoose.set('debug', true); //Verbose logging in console
 
 //Models
-require('./models/budgetCategories');
+require('./models/budgetCategory');
 require('./models/users');
 
 //Passport config
