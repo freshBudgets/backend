@@ -7,7 +7,8 @@ const BudgetCategorySchema = new Schema({
     budgetName: String,
     budgetLimit: Number,
     currentAmount: Number,
+    user: {type: Schema.Types.ObjectId, ref: 'Users'}
     //transactions[]: Array
   });
 
-mongoose.model('BudgetCategories', BudgetCategorySchema);
+mongoose.model('BudgetCategory', BudgetCategorySchema);

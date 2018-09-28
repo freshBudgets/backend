@@ -6,7 +6,7 @@ const jwtSecret = process.env.JWT_SECRET;
 const jwtExpireTime = parseInt(process.env.JWT_EXPIRE_TIME);
 
 const Schema = mongoose.Schema;
-const BudgetCategoriesSchema = mongoose.models('BudgetCategories').schema;
+//const BudgetCategoriesSchema = mongoose.model('BudgetCategories').schema;
 const UserSchema = new Schema({
   firstName: String,
   lastName: String,
@@ -16,6 +16,7 @@ const UserSchema = new Schema({
   isVerified: Boolean,
   plaidInstitutions: [{type: Schema.Types.ObjectId, ref: 'PlaidInstituions'}]
   budgetCategories: [BudgetCategoriesSchema]
+  isVerified: Boolean
 });
 
 UserSchema.methods.setPassword = function(password) {
