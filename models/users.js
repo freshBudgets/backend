@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose        = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
-const crypto = require('crypto');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const jwtSecret = process.env.JWT_SECRET;
-const jwtExpireTime = parseInt(process.env.JWT_EXPIRE_TIME);
+const crypto          = require('crypto');
+const bcrypt          = require('bcrypt');
+const jwt             = require('jsonwebtoken');
+const jwtSecret       = process.env.JWT_SECRET;
+const jwtExpireTime   = parseInt(process.env.JWT_EXPIRE_TIME);
 
 const Schema = mongoose.Schema;
 
