@@ -17,10 +17,14 @@ const update = function(req, res) {
             message: 'Not enough information to update settings'
         });
     }
+    
+    res.json({
+        success: true,
+        message: 'You hit settings/update'
+    });
 
-     
 }
 
 module.exports = {
-  updateSettings
+  update
 }
