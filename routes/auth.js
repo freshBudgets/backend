@@ -22,7 +22,6 @@ const verifyToken = function(req, res, next) {
       }
       else {
         req.decoded = decoded;
-        console.log('hit');
         next();
       }
     });
