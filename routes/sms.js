@@ -13,7 +13,7 @@ const sendTestSMS = function(req,res){
       res.json({ messageID: message.sid });
     })
     .done();
-}
+};
 
 const respondToSMS = function(req, res) {
   const twiml = new MessagingResponse();

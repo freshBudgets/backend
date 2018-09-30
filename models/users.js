@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
-const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.JWT_SECRET;
@@ -14,16 +13,17 @@ const UserSchema = new Schema({
   email: {type: String, unique: true},
   phoneNumber: {type: Number, unique: true},
   password: String,
-  isVerified: Boolean
+  isVerified: Boolean,
+  plaidInstitutions: [{type: Schema.Types.ObjectId, ref: 'PlaidInstituions'}]
 });
 
 UserSchema.methods.setPassword = function(password) {
   this.password = bcrypt.hashSync(password, 10);
-}
+};
 
 UserSchema.methods.validatePassword = function(password) {
   return bcrypt.compare(this.password, password);
-}
+};
 
 UserSchema.methods.createJWT = function() {
   return jwt.sign( {
@@ -31,7 +31,7 @@ UserSchema.methods.createJWT = function() {
     email: this.email,
     _id: this._id
   }, jwtSecret, { expiresIn: jwtExpireTime });
-}
+};
 
 UserSchema.methods.toJSON = function() {
   return {
@@ -41,8 +41,8 @@ UserSchema.methods.toJSON = function() {
     lastName: this.lastName,
     phoneNumber: this.phoneNumber,
     isVerified: this.isVerified
-  }
-}
+  };
+};
 
 UserSchema.plugin(uniqueValidator, "already taken.");
 mongoose.model('Users', UserSchema);
