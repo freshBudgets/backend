@@ -8,7 +8,6 @@ passport.use(new LocalStrategy({
   passwordField: 'password'
 },
   function(username, password, done) {
-    console.log("hit");
     Users.findOne({
       phoneNumber: username
     }, function (err, user) {
