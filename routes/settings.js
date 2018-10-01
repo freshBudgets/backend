@@ -6,7 +6,7 @@ const Users     = mongoose.model('Users');
 const mongoURI  = process.env.MONGO_URI;
 const jwtSecret = process.env.JWT_SECRET;
 
-
+// GET returns the users settings
 const getSettings = function(req, res) {
     var params = req.body;
 
@@ -30,6 +30,7 @@ const getSettings = function(req, res) {
     
 }
 
+// POST updates the users settings
 const update = function(req, res) {
     var params = req.body;
 
