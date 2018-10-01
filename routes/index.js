@@ -23,5 +23,6 @@ router.get('/budget/:id', budget.getOne);
 
 const settings = require('./settings');
 router.post('/settings/update', settings.update);
+router.get('/settings/getSettings', settings.getSettings);
 
 module.exports = router;

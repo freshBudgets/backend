@@ -7,6 +7,29 @@ const mongoURI  = process.env.MONGO_URI;
 const jwtSecret = process.env.JWT_SECRET;
 
 
+const getSettings = function(req, res) {
+    var params = req.body;
+
+    //Variables from the request body
+    const userID = mongoose.Types.ObjectId(req.decoded._id);
+
+    Users.findOne({_id:userID}, function(err, user) {
+        if(err) {
+            res.json({
+                success: false,
+                message: 'Error finding user'
+            });
+        }
+        else {
+            res.json({
+                smsNotifications: user.smsNotifications,
+                emailNotifications: user.emailNotifications
+            });
+        }
+    });
+    
+}
+
 const update = function(req, res) {
     var params = req.body;
 
@@ -18,10 +41,6 @@ const update = function(req, res) {
         });
     }
     
-    // res.json({
-    //     success: true,
-    //     message: 'You hit settings/update'
-    // });
     
     //Variables from the request body
     const userID = mongoose.Types.ObjectId(req.decoded._id);
@@ -58,5 +77,6 @@ const update = function(req, res) {
 }
 
 module.exports = {
+  getSettings,
   update
 }
