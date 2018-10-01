@@ -18,11 +18,29 @@ const update = function(req, res) {
         });
     }
     
-    res.json({
-        success: true,
-        message: 'You hit settings/update'
-    });
+    // res.json({
+    //     success: true,
+    //     message: 'You hit settings/update'
+    // });
+    
+    //Variables from the request body
+    const userID = mongoose.Types.ObjectId(req.decoded._id);
+    
+    Users.findOne({_id:userID}, function(err, user) {
+        if(err){
+            res.json({
+                success: false,
+                message: 'Error finding user'
+            });
+        }
 
+        else{
+            res.json({
+                user: user
+            });
+        }
+
+    });
 }
 
 module.exports = {
