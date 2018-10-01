@@ -35,8 +35,22 @@ const update = function(req, res) {
         }
 
         else{
-            res.json({
-                user: user
+            user.smsNotifications = params.smsNotifications;
+            user.emailNotifications = params.emailNotifications;
+
+            user.save(function(err) {
+                if(err) {
+                    res.json({
+                        success: false,
+                        message: 'Could not save user settings'
+                    });
+                }
+                else{
+                    res.json({
+                        success: true,
+                        message: 'Successfully saved user settings'
+                    });
+                }
             });
         }
 
