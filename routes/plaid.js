@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 
 const PlaidInstitution = mongoose.model('PlaidInstitutions');
 
-const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID_SB;
-const PLAID_DEV_SECRET = process.env.PLAID_DEV_SECRET_SB;
-const PLAID_PUBLIC_ID = process.env.PLAID_PUBLIC_ID_SB;
+const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
+const PLAID_DEV_SECRET = process.env.PLAID_DEV_SECRET;
+const PLAID_PUBLIC_ID = process.env.PLAID_PUBLIC_ID;
 const PLAID_ENV = plaid.environments.sandbox;
 const plaidClient = new plaid.Client(PLAID_CLIENT_ID, PLAID_DEV_SECRET, PLAID_PUBLIC_ID, PLAID_ENV);
 
