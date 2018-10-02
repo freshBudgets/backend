@@ -50,4 +50,6 @@ First run the server locally. Within Postman set the requrest url to
 localhost:5000/api/...
 ```
 
-replace ... with whatever route you wish to access. If sending a POST, the contents sent are in the Body section. Tokens go in the header
+Replace ... with whatever route you wish to access. If sending a POST, the contents sent are in the Body section. Tokens go in the header.
+
+Make sure that when you are sending a POST request, in the Body section, choose x-www-form-urlencoded and enter the body keys and values there. 
