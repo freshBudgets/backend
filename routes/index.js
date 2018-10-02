@@ -21,6 +21,11 @@ const budget = require('./budget');
 router.get('/budget', budget.getAll);
 router.get('/budget/:id', budget.getOne);
 
+
+const settings = require('./settings');
+router.post('/settings/update', settings.update);
+router.get('/settings', settings.getSettings);
+
 const plaid = require('./plaid');
 router.post('/plaid/link', plaid.linkPlaidAccount);
 router.post('/plaid/transaction', plaid.handlePlaidTransaction);

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose        = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -14,6 +14,8 @@ const UserSchema = new Schema({
   phoneNumber: {type: Number, unique: true},
   password: String,
   isVerified: Boolean,
+  emailNotifications: Boolean,
+  smsNotifications: Boolean,
   plaidInstitutions: [{type: Schema.Types.ObjectId, ref: 'PlaidInstituions'}]
 });
 
@@ -40,9 +42,12 @@ UserSchema.methods.toJSON = function() {
     firstName: this.firstName,
     lastName: this.lastName,
     phoneNumber: this.phoneNumber,
-    isVerified: this.isVerified
+    isVerified: this.isVerified,
+    emailNotifications: this.emailNotifications,
+    smsNotifications: this.smsNotifications
   };
 };
+
 
 UserSchema.plugin(uniqueValidator, "already taken.");
 mongoose.model('Users', UserSchema);
