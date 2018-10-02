@@ -23,6 +23,7 @@ mongoose.set('debug', true); //Verbose logging in console
 //Models
 require('./models/transactions');
 require('./models/plaidInstitutions');
+require('./models/budgetCategory');
 require('./models/users');
 
 //Passport config

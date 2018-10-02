@@ -29,6 +29,7 @@ router.get('/settings', settings.getSettings);
 const plaid = require('./plaid');
 router.post('/plaid/link', plaid.linkPlaidAccount);
 router.post('/plaid/transaction', plaid.handlePlaidTransaction);
-
-
+router.post('/budget/', budget.createCategory);
+router.post('/budget/edit', budget.editCategory);
+router.post('/budget/delete', budget.deleteCategory);
 module.exports = router;

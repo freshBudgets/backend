@@ -6,7 +6,7 @@ const jwtSecret = process.env.JWT_SECRET;
 const jwtExpireTime = parseInt(process.env.JWT_EXPIRE_TIME);
 
 const Schema = mongoose.Schema;
-
+const BudgetCategoriesSchema = mongoose.model('BudgetCategory').schema;
 const UserSchema = new Schema({
   firstName: String,
   lastName: String,
