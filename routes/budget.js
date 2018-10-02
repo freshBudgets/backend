@@ -82,7 +82,7 @@ var createCategory = function(req, res) {
   budgetCategory.budgetLimit = budgetLimit;
   budgetCategory.currentAmount = 0;
   budgetCategory.user = mongoose.Types.ObjectId(req.decoded._id);
-  console.log("budget name: " + budgetCategory.budgetName);
+  // console.log("budget name: " + budgetCategory.budgetName);
 
   //Save budget to database
   budgetCategory.save(function(err, createdBudget){
@@ -118,7 +118,7 @@ var editCategory = function(req, res) {
         message: 'Could not find the budget for this user'
       });
     }
-    console.log("budget category: " + budgetCategory);
+    // console.log("budget category: " + budgetCategory);
     budgetCategory.budgetName = newBudgetName;
     budgetCategory.budgetLimit = newBudgetLimit;
     budgetCategory.save(function(err){
@@ -135,7 +135,7 @@ var editCategory = function(req, res) {
         });
       }
     });
-  });  
+  });
 }
 
 var deleteCategory = function(req, res) {
@@ -157,10 +157,10 @@ var deleteCategory = function(req, res) {
   });
 }
 
-module.exports = { 
+module.exports = {
   createCategory,
   editCategory,
   deleteCategory,
-  getAll, 
-  getOne 
+  getAll,
+  getOne
 };

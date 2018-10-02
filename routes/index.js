@@ -20,12 +20,11 @@ router.get('/user', user.user);
 const budget = require('./budget');
 router.get('/budget', budget.getAll);
 router.get('/budget/:id', budget.getOne);
-router.post('/budget', budget.createCat);
 
 const plaid = require('./plaid');
 router.post('/plaid/link', plaid.linkPlaidAccount);
 router.post('/plaid/transaction', plaid.handlePlaidTransaction);
-router.post('/budget/createCategory', budget.createCategory);
-router.post('/budget/editCategory', budget.editCategory);
-router.post('/budget/deleteCategory', budget.deleteCategory);
+router.post('/budget/', budget.createCategory);
+router.post('/budget/edit', budget.editCategory);
+router.post('/budget/delete', budget.deleteCategory);
 module.exports = router;

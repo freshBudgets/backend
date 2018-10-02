@@ -23,7 +23,6 @@ mongoose.set('debug', true); //Verbose logging in console
 //Models
 require('./models/transactions');
 require('./models/plaidInstitutions');
-require('./models/budgetCategories');
 require('./models/budgetCategory');
 require('./models/users');
 
