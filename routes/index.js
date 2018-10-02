@@ -24,7 +24,7 @@ router.get('/budget/:id', budget.getOne);
 
 const settings = require('./settings');
 router.post('/settings/update', settings.update);
-router.get('/settings/getSettings', settings.getSettings);
+router.get('/settings', settings.getSettings);
 
 const plaid = require('./plaid');
 router.post('/plaid/link', plaid.linkPlaidAccount);
