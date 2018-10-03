@@ -6,8 +6,6 @@ const TransactionsSchema = new Schema({
     amount: Number,
     date: Date,
     name: String,
-    transaction_id: String,
-    account_id: String,
     budget_id: String
   });
 
