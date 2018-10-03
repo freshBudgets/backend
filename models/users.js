@@ -14,6 +14,7 @@ const UserSchema = new Schema({
   phoneNumber: {type: Number, unique: true},
   password: String,
   isVerified: Boolean,
+  smsVerificationCode: Number,
   emailNotifications: Boolean,
   smsNotifications: Boolean,
   plaidInstitutions: [{type: Schema.Types.ObjectId, ref: 'PlaidInstituions'}]
@@ -46,6 +47,10 @@ UserSchema.methods.toJSON = function() {
     emailNotifications: this.emailNotifications,
     smsNotifications: this.smsNotifications
   };
+};
+
+UserSchema.methods.generateSMSVerificationCode = function () {
+  this.smsVerificationCode =  Math.floor(100000 + Math.random() * 900000);
 };
 
 

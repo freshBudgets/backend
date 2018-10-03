@@ -9,11 +9,13 @@ const sms = require('./sms');
 router.post('/sms/receive', sms.respondToSMS);
 router.post('/sms/sendTest', sms.sendTestSMS);
 
+
 /********************
  * PROTECTED ROUTES *
  *********************/
 router.use(auth.verifyToken);
 
+router.post('/sms/verify', sms.verifySMSVerificationCode);
 const user = require('./user');
 router.get('/user', user.user);
 
