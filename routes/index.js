@@ -34,6 +34,7 @@ router.post('/budget/delete', budget.deleteCategory);
 
 const transactions = require('./transactions');
 router.post('/transactions/addTransaction', transactions.addTransaction);
+router.post('/transactions/removeTransaction', transactions.removeTransaction);
 
 
 module.exports = router;

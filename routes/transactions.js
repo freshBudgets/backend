@@ -20,33 +20,65 @@ const addTransaction = function(req, res) {
         });
     }
 
-    var newTransaction = new Transactions();
-    newTransaction.amount = params.amount;
-    newTransaction.date = params.date;
-    newTransaction.name = params.name;
-    newTransaction.budget_id = params.budget_id;
-    newTransaction.user_id = userID;
-    
-    newTransaction.save(function(err){
-        if (err){
-            res.json({
-                success: false,
-                message: 'Could not add new transaction.'
-            });
-        }
-        else{
-            res.json({
-                success: true,
-                message: 'Successfully added transaction!'
-            })
-        }
-    });
+    else {
+        var newTransaction = new Transactions();
+        newTransaction.amount = params.amount;
+        newTransaction.date = params.date;
+        newTransaction.name = params.name;
+        newTransaction.budget_id = params.budget_id;
+        newTransaction.user_id = userID;
+
+        newTransaction.save(function(err){
+            if (err){
+                res.json({
+                    success: false,
+                    message: 'Could not add new transaction.'
+                });
+            }
+            else{
+                res.json({
+                    success: true,
+                    message: 'Successfully added transaction!'
+                })
+            }
+        });
+    }
 }
 
+// removes transaction from Transactions collection
+const removeTransaction = function(req, res) {
+    var params = req.body;
+
+    //Check if all needed information is sent in request
+    if (!params.transaction_id) {
+        res.json({
+            success: false,
+            message: 'Not enough information to update settings'
+        });
+    }
+    
+    else {
+        Transactions.findOneAndDelete({_id:params.transaction_id}, function(err, transaction) {
+            if(err) {
+                res.json({
+                    success: false,
+                    message: 'Could not delete transaction'
+                });
+            }
+            else {
+                res.json({
+                    success: true,
+                    message: 'Successfully deleted transaction',
+                    transaction_id: transaction._id
+                });
+            }
+        });
+    }
+}
 
 module.exports = {
     addTransaction,
-    // removeTransaction,
+    removeTransaction
     // getAll,
     // getMatching,
     // updateTransaction
