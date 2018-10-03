@@ -62,7 +62,13 @@ const removeTransaction = function(req, res) {
             if(err) {
                 res.json({
                     success: false,
-                    message: 'Could not delete transaction'
+                    message: 'Error finding transaction'
+                });
+            }
+            else if(transaction == null) {
+                res.json({
+                    success: false,
+                    message: 'Transacton not found'
                 });
             }
             else {
