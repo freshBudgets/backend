@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const sms = require('./sms');
 const Users = mongoose.model('Users');
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -46,6 +47,7 @@ const signup = function(req, res) {
     //Create new user from request params
     const newUser = new Users(params);
     newUser.setPassword(params.password);
+    newUser.generateSMSVerificationCode();
     newUser.isVerified = false;
     //Save new user
     return newUser.save(function(err) {
@@ -58,6 +60,7 @@ const signup = function(req, res) {
         });
       }
       else {
+        sms.sendSMSVerificationCode(newUser.phoneNumber, newUser.smsVerificationCode);
         res.json({
           success: true,
           message: "user successfully created",
@@ -87,7 +90,7 @@ const login = function(req, res, next) {
         message: "user successfully signed in",
         token: user.token,
         user: user.toJSON()
-      })
+      });
     }
     else {
       res.json({
