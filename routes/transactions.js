@@ -13,36 +13,94 @@ const addTransaction = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
     //Check if all needed information is sent in request
-    if (!params.amount || !params.date || !params.name || !params.budget_id) {
+    if(!params.amount || !params.date || !params.name || !params.budget_id) {
         res.json({
             success: false,
             message: 'Not enough information to update settings'
         });
+        return;
     }
 
-    else {
-        var newTransaction = new Transactions();
-        newTransaction.amount = params.amount;
-        newTransaction.date = params.date;
-        newTransaction.name = params.name;
-        newTransaction.budget_id = params.budget_id;
-        newTransaction.user_id = userID;
+    var newTransaction = new Transactions();
+    newTransaction.amount = params.amount;
+    newTransaction.date = params.date;
+    newTransaction.name = params.name;
+    newTransaction.budget_id = params.budget_id;
+    newTransaction.user_id = userID;
 
-        newTransaction.save(function(err){
-            if (err){
-                res.json({
-                    success: false,
-                    message: 'Could not add new transaction.'
-                });
-            }
-            else{
-                res.json({
-                    success: true,
-                    message: 'Successfully added transaction!'
-                })
-            }
+    newTransaction.save(function(err){
+        if (err){
+            res.json({
+                success: false,
+                message: 'Could not add new transaction.'
+            });
+        }
+        else{
+            res.json({
+                success: true,
+                message: 'Successfully added transaction!'
+            })
+        }
+    });
+}
+
+// updates an existing transaction
+const updateTransaction = function(req, res) {
+    var params = req.body;
+    const userID = mongoose.Types.ObjectId(req.decoded._id);
+
+    console.log("start update\n");
+
+    //Check if all needed information is sent in request
+    if(!params.transaction_id || !params.amount || !params.date || !params.name || !params.budget_id) {
+        res.json({
+            success: false,
+            message: 'Not enough information to update settings'
         });
+        return;
     }
+
+    Transactions.findOne({_id: params.transaction_id}, function(err, transaction) {
+        if(err) {
+            res.json({
+                success: false,
+                message: 'Error finding transaction'
+            });
+        }  
+        else if(transaction == null) {
+            res.json({
+                success: false,
+                message: 'Transaction does not exist'
+            });
+        }
+        else if(transaction.user_id != userID) {
+            res.json({
+                success: false,
+                message: 'This user is not authorized to edit this transaction'
+            });
+        }
+        else {
+            transaction.amount = params.amount;
+            transaction.date = params.date;
+            transaction.name = params.name;
+            transaction.budget_id = params. budget_id;
+
+            transaction.save(function(err) {
+                if(err) {
+                    res.json({
+                        success: false,
+                        message: 'Could not save transaction'
+                    });
+                }
+                else{
+                    res.json({
+                        success: true,
+                        message: 'Successfully saved transaction'
+                    });
+                }
+            });
+        }
+    });
 }
 
 // removes transaction from Transactions collection
@@ -106,6 +164,15 @@ const getAll = function(req, res) {
 const getFromBudget = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
+
+    //Check if all needed information is sent in request
+    if(!budget_id) {
+        res.json({
+            success: false,
+            message: 'Not enough information to update settings'
+        });
+        return;
+    }
     
     Transactions.find({user_id: userID, budget_id: params.budget_id}, function(err, transactions) {
         if(transactions.length > 0) {
@@ -126,7 +193,7 @@ const getFromBudget = function(req, res) {
 module.exports = {
     addTransaction,
     removeTransaction,
+    updateTransaction,
     getAll,
     getFromBudget
-    // updateTransaction
 }
