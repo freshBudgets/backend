@@ -10,6 +10,15 @@ const jwtSecret = process.env.JWT_SECRET;
 const getSettings = function(req, res) {
     var params = req.body;
 
+    //Check if all needed information is sent in request
+    if (!params.emailNotifications || !params.smsNotifications) {
+        res.json({
+            success: false,
+            message: 'Not enough information to get settings'
+        });
+        return;
+    }
+    
     //Variables from the request body
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
