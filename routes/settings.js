@@ -40,6 +40,7 @@ const update = function(req, res) {
             success: false,
             message: 'Not enough information to update settings'
         });
+        return;
     }
     
     
