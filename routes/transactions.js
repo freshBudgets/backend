@@ -87,7 +87,7 @@ const getAll = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
     
     Transactions.find({user_id: userID}, function(err, transactions) {
-        if(transactions) {
+        if(transactions.length > 0) {
             res.json({
                 transactions: transactions
             });
@@ -101,10 +101,32 @@ const getAll = function(req, res) {
     });
 }
 
+
+// returns all transactions from a specific budget for current user
+const getFromBudget = function(req, res) {
+    var params = req.body;
+    const userID = mongoose.Types.ObjectId(req.decoded._id);
+    
+    Transactions.find({user_id: userID, budget_id: params.budget_id}, function(err, transactions) {
+        if(transactions.length > 0) {
+            res.json({
+                transactions: transactions
+            });
+        }
+        else {
+            res.json({
+                success: false,
+                message: 'Could not find transactions for user'
+            });
+        }
+    });
+}
+
+
 module.exports = {
     addTransaction,
     removeTransaction,
-    getAll
-    // getMatching,
+    getAll,
+    getFromBudget
     // updateTransaction
 }
