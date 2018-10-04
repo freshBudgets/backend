@@ -42,6 +42,7 @@ const getOne = (req, res) => {
     }
   });
 }
+
 var createCategory = function(req, res) {
   //Variables from the request body
   const userID = req.decoded._id;
