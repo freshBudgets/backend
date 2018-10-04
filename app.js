@@ -33,5 +33,6 @@ app.use(passport.initialize());
 //Set up server api routes to look at routes/index.js
 app.use('/api/', require('./routes'));
 
-app.listen(port);
+var server = app.listen(port);
 console.log("Listening on port: " + port);
+module.exports = server;
