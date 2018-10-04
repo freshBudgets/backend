@@ -22,6 +22,7 @@ const getSettings = function(req, res) {
         }
         else {
             res.json({
+                success: true,
                 smsNotifications: user.smsNotifications,
                 emailNotifications: user.emailNotifications
             });
