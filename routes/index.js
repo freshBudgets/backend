@@ -22,6 +22,12 @@ router.get('/user', user.user);
 const budget = require('./budget');
 router.get('/budget', budget.getAll);
 router.get('/budget/:id', budget.getOne);
+<<<<<<< Updated upstream
+=======
+router.post('/budget/', budget.createCategory);
+router.post('/budget/edit', budget.editCategory);
+router.post('/budget/delete', budget.deleteCategory);
+>>>>>>> Stashed changes
 
 const settings = require('./settings');
 router.post('/settings/update', settings.update);
@@ -30,6 +36,7 @@ router.get('/settings', settings.getSettings);
 const plaid = require('./plaid');
 router.post('/plaid/link', plaid.linkPlaidAccount);
 router.post('/plaid/transaction', plaid.handlePlaidTransaction);
+<<<<<<< Updated upstream
 router.post('/budget/', budget.createCategory);
 router.post('/budget/edit', budget.editCategory);
 router.post('/budget/delete', budget.deleteCategory);
@@ -41,5 +48,7 @@ router.post('/transactions/update', transactions.updateTransaction);
 router.post('/transactions/getFromBudget', transactions.getFromBudget);
 router.get('/transactions/', transactions.getAll);
 
+=======
+>>>>>>> Stashed changes
 
 module.exports = router;
