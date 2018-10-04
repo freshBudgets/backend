@@ -33,9 +33,9 @@ router.post('/budget/edit', budget.editCategory);
 router.post('/budget/delete', budget.deleteCategory);
 
 const transactions = require('./transactions');
-router.post('/transactions/addTransaction', transactions.addTransaction);
-router.post('/transactions/removeTransaction', transactions.removeTransaction);
-router.post('/transactions/updateTransaction', transactions.updateTransaction);
+router.post('/transactions/add', transactions.addTransaction);
+router.post('/transactions/remove', transactions.removeTransaction);
+router.post('/transactions/update', transactions.updateTransaction);
 router.post('/transactions/getFromBudget', transactions.getFromBudget);
 router.get('/transactions/', transactions.getAll);
 
