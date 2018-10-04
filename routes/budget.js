@@ -26,7 +26,7 @@ const getOne = (req, res) => {
   const userID = req.decoded._id;
   const budgetID = req.params.id;
   console.log('budgetID: ' + budgetID);
-  BudgetCategories.find({_id:budgetID, user:userID}, function(err, ret) {
+  BudgetCategories.findOne({_id:budgetID, user:userID}, function(err, ret) {
     if(err) {
       res.json({
         success: false,
