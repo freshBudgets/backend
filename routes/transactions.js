@@ -82,10 +82,29 @@ const removeTransaction = function(req, res) {
     }
 }
 
+// returns all transactions for a user
+const getAll = function(req, res) {
+    const userID = mongoose.Types.ObjectId(req.decoded._id);
+    
+    Transactions.find({user_id: userID}, function(err, transactions) {
+        if(transactions) {
+            res.json({
+                transactions: transactions
+            });
+        }
+        else {
+            res.json({
+                success: false,
+                message: 'Could not find transactions for user'
+            });
+        }
+    });
+}
+
 module.exports = {
     addTransaction,
-    removeTransaction
-    // getAll,
+    removeTransaction,
+    getAll
     // getMatching,
     // updateTransaction
 }
