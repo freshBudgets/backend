@@ -15,8 +15,8 @@ const UserSchema = new Schema({
   password: String,
   isVerified: Boolean,
   smsVerificationCode: Number,
-  emailNotifications: Boolean,
-  smsNotifications: Boolean,
+  emailNotifications: {type: Boolean, default: true},
+  smsNotifications: {type: Boolean, default: true},
   plaidInstitutions: [{type: Schema.Types.ObjectId, ref: 'PlaidInstituions'}]
 });
 
