@@ -147,6 +147,7 @@ const getAll = function(req, res) {
     Transactions.find({user_id: userID}, function(err, transactions) {
         if(transactions.length > 0) {
             res.json({
+		success: true,
                 transactions: transactions
             });
         }
@@ -177,6 +178,7 @@ const getFromBudget = function(req, res) {
     Transactions.find({user_id: userID, budget_id: params.budget_id}, function(err, transactions) {
         if(transactions.length > 0) {
             res.json({
+		success: true,
                 transactions: transactions
             });
         }
