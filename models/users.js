@@ -44,8 +44,8 @@ UserSchema.methods.toJSON = function() {
     lastName: this.lastName,
     phoneNumber: this.phoneNumber,
     isVerified: this.isVerified,
-    emailNotifications: this.emailNotifications,
-    smsNotifications: this.smsNotifications
+    emailNotifications: {type: Boolean, default:true},
+    smsNotifications: {type: Boolean, default:true}
   };
 };
 
