@@ -116,27 +116,29 @@ const removeTransaction = function(req, res) {
     }
     
     else {
-        Transactions.findOneAndDelete({_id:params.transaction_id}, function(err, transaction) {
+        Transactions.findOne({_id :budgetID, user:userID}, function(err, transaction) {
             if(err) {
-                res.json({
-                    success: false,
-                    message: 'Error finding transaction'
-                });
-            }
-            else if(transaction == null) {
-                res.json({
-                    success: false,
-                    message: 'Transacton not found'
-                });
+              res.json({
+                success: false,
+                message: 'Could not delete the transaction'
+              });
             }
             else {
+              transaction.isDeleted = true;
+              transaction.save(function(err) {
+                if (err) {
+                  res.json({
+                    success: false,
+                    message: 'Could not delete the transaction'
+                  });
+                }
                 res.json({
-                    success: true,
-                    message: 'Successfully deleted transaction',
-                    transaction_id: transaction._id
+                  success: true,
+                  message: 'Sucessfully deleted the transaction'
                 });
+              });
             }
-        });
+          });
     }
 }
 
@@ -144,7 +146,7 @@ const removeTransaction = function(req, res) {
 const getAll = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
     
-    Transactions.find({user_id: userID}, function(err, transactions) {
+    Transactions.find({user_id: userID, isDeleted: false}, function(err, transactions) {
         if(transactions.length > 0) {
             res.json({
 		success: true,
@@ -175,7 +177,7 @@ const getFromBudget = function(req, res) {
         return;
     }
     
-    Transactions.find({user_id: userID, budget_id: params.budget_id}, function(err, transactions) {
+    Transactions.find({user_id: userID, budget_id: params.budget_id, isDeleted: false}, function(err, transactions) {
         if(transactions.length > 0) {
             res.json({
 		success: true,

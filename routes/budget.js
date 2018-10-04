@@ -5,7 +5,7 @@ const User = mongoose.model('Users');
 
 const getAll = (req, res) => {
   const userID = req.decoded._id;
-  BudgetCategories.find({user:userID}, function(err, ret) {
+  BudgetCategories.find({user:userID, isDeleted: false}, function(err, ret) {
     if(err) {
       res.json({
         success: false,
@@ -26,7 +26,7 @@ const getOne = (req, res) => {
   const userID = req.decoded._id;
   const budgetID = req.params.id;
   console.log('budgetID: ' + budgetID);
-  BudgetCategories.find({_id:budgetID, user:userID}, function(err, ret) {
+  BudgetCategories.find({_id:budgetID, user:userID, isDeleted: false}, function(err, ret) {
     if(err) {
       res.json({
         success: false,
@@ -114,7 +114,7 @@ var editCategory = function(req, res) {
 var deleteCategory = function(req, res) {
   const userID = req.decoded._id;
   const budgetID = req.body.budgetID;
-  BudgetCategories.deleteOne({_id :budgetID, user:userID}, function(err) {
+  BudgetCategories.findOne({_id :budgetID, user:userID}, function(err, budget) {
     if(err) {
       res.json({
         success: false,
@@ -122,9 +122,18 @@ var deleteCategory = function(req, res) {
       });
     }
     else {
-      res.json({
-        success: true,
-        message: 'Sucessfully deleted the budget category'
+      budget.isDeleted = true;
+      budget.save(function(err) {
+        if (err) {
+          res.json({
+            success: false,
+            message: 'Could not delete the budget category'
+          });
+        }
+        res.json({
+          success: true,
+          message: 'Sucessfully deleted the budget category'
+        });
       });
     }
   });
