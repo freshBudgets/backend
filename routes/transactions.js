@@ -27,6 +27,7 @@ const addTransaction = function(req, res) {
     newTransaction.name = params.name;
     newTransaction.budget_id = params.budget_id;
     newTransaction.user_id = userID;
+    newTransaction.isDeleted = false;
 
     newTransaction.save(function(err){
         if (err){
@@ -116,20 +117,22 @@ const removeTransaction = function(req, res) {
     }
     
     else {
-        Transactions.findOneAndDelete({_id:params.transaction_id}, function(err, transaction) {
+        Transactions.findOne({_id:params.transaction_id}, function(err, transaction) {
             if(err) {
                 res.json({
                     success: false,
                     message: 'Error finding transaction'
                 });
             }
-            else if(transaction == null) {
+            else if(transaction == null || transaction.isDeleted) {
                 res.json({
                     success: false,
                     message: 'Transacton not found'
                 });
             }
             else {
+                transaction.isDeleted = true;
+
                 res.json({
                     success: true,
                     message: 'Successfully deleted transaction',
