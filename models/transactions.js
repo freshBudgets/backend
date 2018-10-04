@@ -7,7 +7,8 @@ const TransactionsSchema = new Schema({
     date: Date,
     name: String,
     budget_id: String,
-    user_id: String
+    user_id: String,
+    isDeleted: {type: Boolean, default: false}
   });
 
 mongoose.model('Transactions', TransactionsSchema);
