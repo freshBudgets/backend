@@ -36,7 +36,7 @@ const update = function(req, res) {
     var params = req.body;
 
     //Check if all needed information is sent in request
-    if (!params.emailNotifications || !params.smsNotifications) {
+    if ((params.emailNotifications == null) || (params.smsNotifications == null)) {
         res.json({
             success: false,
             message: 'Not enough information to update settings'
