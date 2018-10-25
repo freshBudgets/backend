@@ -181,7 +181,7 @@ const getFromBudget = function(req, res) {
     Transactions.find({user_id: userID, budget_id: budgetId, isDeleted: false}, function(err, transactions) {
         if(transactions.length > 0) {
             res.json({
-		success: true,
+		        success: true,
                 transactions: transactions
             });
         }
