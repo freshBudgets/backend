@@ -4,6 +4,7 @@ const crypto       = require('crypto');
 const jwt          = require('jsonwebtoken');
 const Users        = mongoose.model('Users');
 const Transactions = mongoose.model('Transactions');
+const Budgets = mongoose.model('BudgetCategory');
 const mongoURI     = process.env.MONGO_URI;
 const jwtSecret    = process.env.JWT_SECRET;
 
@@ -180,7 +181,7 @@ const getFromBudget = function(req, res) {
     Transactions.find({user_id: userID, budget_id: params.budget_id, isDeleted: false}, function(err, transactions) {
         if(transactions.length > 0) {
             res.json({
-		success: true,
+		        success: true,
                 transactions: transactions
             });
         }
@@ -193,11 +194,47 @@ const getFromBudget = function(req, res) {
     });
 }
 
+const moveTransaction = function(req, res) {
+    const userID = mongoose.Types.ObjectId(req.decoded._id);
+    
+    Transactions.findOne({_id: req.body.transaction_id, user_id: userID, isDeleted: false}, function(err, transaction) {
+        if (err) {
+            res.json({
+                success: false,
+                message: 'Could not find transaction for user'
+            });
+        }
+        Budgets.findOne({user_id: userID, isDeleted: false, _id: req.body.new_budget_id}, function(err, budget) {
+            if(transaction.length > 0 && budget.length > 0) {
+                    transaction.budget_id = budget._id;
+                    res.json({
+                        success: true,
+                        message: 'Successfully switched budgets'
+                    });
+            }
+            else{
+                res.json({
+                    success: false,
+                    message: 'Could not find budget for user'
+                });
+            }
+        });
+    });
+
+}
+
+// const getTransactionTime = function(req, res) {
+//     const currentDate = new Date();
+//     if (req.params.time === 'month'){
+//         Transactions.find()
+//     }
+// }
 
 module.exports = {
     addTransaction,
     removeTransaction,
     updateTransaction,
     getAll,
-    getFromBudget
+    getFromBudget,
+    moveTransaction
 }
