@@ -1,5 +1,7 @@
 const plaid = require('plaid');
 const mongoose = require('mongoose');
+const moment = require('moment');
+const twilioClient = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 
 const PlaidInstitution = mongoose.model('PlaidInstitutions');
 
@@ -54,8 +56,32 @@ const linkPlaidAccount = function(req, res) {
     });
 };
 
+const getPlaidTransactions = function(req, res) {
+    const today = moment().format('YYYY-MM-DD');
+    const thirtyDaysAgo = moment().subtract(30, 'days').format('YYYY-MM-DD');
+    const userID = mongoose.Types.ObjectId(req.decoded._id);
+    PlaidInstitution.findOne({user: userID}, (err, account) => {
+        plaidClient.getTransactions(account.accessToken, thirtyDaysAgo, today, (err, result) => {
+            res.json({
+                result
+            });
+        });
+    });
+    
+};
+
 const handlePlaidTransaction = function(req, res) {
-    // const params = req.body;
+    const params = req.body;
+    twilioClient.messages.create({
+        body: 'webhook hit' + params,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: '+12069140659'
+      })
+      .then(message => {
+        console.log(message.sid);
+        res.json({ messageID: message.sid });
+      })
+      .done();
     // if (params.webhook_code == "DEFAULT UPDATE" && params.webhook_type == "TRANSACTIONS") {
     //     PlaidInstitution.findOne({itemID: params.item_id}, function(err, plaid) {
     //         const now = moment().format('YYYY-MM-DD');
@@ -76,11 +102,12 @@ const handlePlaidTransaction = function(req, res) {
     //get response from user, handle updating budget
 
     //STUBBED FOR NOW
-    res.json({success: true, message:"stub"});
+    //res.json({success: true, message:"stub"});
 };
 
 module.exports = {
     linkPlaidAccount,
-    handlePlaidTransaction
+    handlePlaidTransaction,
+    getPlaidTransactions
 };
 
