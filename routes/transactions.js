@@ -223,12 +223,64 @@ const moveTransaction = function(req, res) {
 
 }
 
-// const getTransactionTime = function(req, res) {
-//     const currentDate = new Date();
-//     if (req.params.time === 'month'){
-//         Transactions.find()
-//     }
-// }
+const getTransactionTime = function(req, res) {
+    const currentDate = new Date();
+    if (req.params.time === 'month'){
+        var cutoff = new Date();
+        cutoff.setMonth(cutoff.getMonth()-1);
+        Transactions.find({user_id: userID, date: {$gt: cutoff}, isDeleted: false}, function(transaction_list, err){
+            if(err){
+                res.json({
+                    success: false,
+                    message: 'Could not find transactions for user in this time scale'
+                });
+            }
+            else{
+                res.json({
+                    success: true,
+                    transaction_list: transaction_list
+                });
+            }
+        });
+    }
+    else if (req.params.time === '6months'){
+        var cutoff = new Date();
+        cutoff.setMonth(cutoff.getMonth()-6);
+        Transactions.find({user_id: userID, date: {$gt: cutoff}, isDeleted: false}, function(transaction_list, err){
+            if(err){
+                res.json({
+                    success: false,
+                    message: 'Could not find transactions for user in this time scale'
+                });
+            }
+            else{
+                res.json({
+                    success: true,
+                    transaction_list: transaction_list
+                });
+            }
+        });
+    }
+    //last is year
+    else {
+        var cutoff = new Date();
+        cutoff.setMonth(cutoff.getMonth()-12);
+        Transactions.find({user_id: userID, date: {$gt: cutoff}, isDeleted: false}, function(transaction_list, err){
+            if(err){
+                res.json({
+                    success: false,
+                    message: 'Could not find transactions for user in this time scale'
+                });
+            }
+            else{
+                res.json({
+                    success: true,
+                    transaction_list: transaction_list
+                });
+            }
+        });
+    }
+}
 
 module.exports = {
     addTransaction,
@@ -236,5 +288,6 @@ module.exports = {
     updateTransaction,
     getAll,
     getFromBudget,
-    moveTransaction
+    moveTransaction,
+    getTransactionTime
 }
