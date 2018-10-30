@@ -10,7 +10,8 @@ const jwtSecret    = process.env.JWT_SECRET;
 
 // adds a transaction to the Transactions collection
 const addTransaction = function(req, res) {
-    var params = req.body; 
+    var params = req.body;
+    req.body.date = new Date();
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
     //Check if all needed information is sent in request
@@ -195,22 +196,28 @@ const getFromBudget = function(req, res) {
 }
 
 const moveTransaction = function(req, res) {
+    //console.log('in here');
     const userID = mongoose.Types.ObjectId(req.decoded._id);
     
     Transactions.findOne({_id: req.body.transaction_id, user_id: userID, isDeleted: false}, function(err, transaction) {
+        //console.log("transaction: " + transaction);
         if (err) {
             res.json({
                 success: false,
                 message: 'Could not find transaction for user'
             });
         }
-        Budgets.findOne({user_id: userID, isDeleted: false, _id: req.body.new_budget_id}, function(err, budget) {
-            if(transaction.length > 0 && budget.length > 0) {
+        Budgets.findOne({userID: userID, isDeleted: false, _id: req.body.new_budget_id}, function(err, budget) {
+            //console.log("transaction: ", transaction.length);
+            //console.log("budget: " + budget);
+            if(transaction && budget) {
                     transaction.budget_id = budget._id;
-                    res.json({
-                        success: true,
-                        message: 'Successfully switched budgets'
-                    });
+                    transaction.save(function(err){
+                        res.json({
+                            success: true,
+                            message: 'Successfully switched budgets'
+                        });
+                    }) 
             }
             else{
                 res.json({
@@ -224,11 +231,16 @@ const moveTransaction = function(req, res) {
 }
 
 const getTransactionTime = function(req, res) {
-    const currentDate = new Date();
-    if (req.params.time === 'month'){
-        var cutoff = new Date();
+    const cutoff = new Date();
+    //const cutoff = '2017-10-29 00:00:00.000+00:00';
+    const userID = req.decoded._id;
+    const time = req.params.time;
+    if (time === 'month'){
+        //var cutoff = new Date();
         cutoff.setMonth(cutoff.getMonth()-1);
-        Transactions.find({user_id: userID, date: {$gt: cutoff}, isDeleted: false}, function(transaction_list, err){
+        //
+        Transactions.find({user_id: userID, date: {"$gt": cutoff}, isDeleted: false}, function(err, transaction_list){
+            console.log('list: ' + transaction_list);
             if(err){
                 res.json({
                     success: false,
@@ -243,10 +255,10 @@ const getTransactionTime = function(req, res) {
             }
         });
     }
-    else if (req.params.time === '6months'){
-        var cutoff = new Date();
+    else if (time === '6months'){
+        //var cutoff = new Date();
         cutoff.setMonth(cutoff.getMonth()-6);
-        Transactions.find({user_id: userID, date: {$gt: cutoff}, isDeleted: false}, function(transaction_list, err){
+        Transactions.find({user_id: userID, date: {"$gt": cutoff}, isDeleted: false}, function(err, transaction_list){
             if(err){
                 res.json({
                     success: false,
@@ -263,9 +275,9 @@ const getTransactionTime = function(req, res) {
     }
     //last is year
     else {
-        var cutoff = new Date();
+        //var cutoff = new Date();
         cutoff.setMonth(cutoff.getMonth()-12);
-        Transactions.find({user_id: userID, date: {$gt: cutoff}, isDeleted: false}, function(transaction_list, err){
+        Transactions.find({user_id: userID, date: {"$gt": cutoff}, isDeleted: false}, function(err, transaction_list){
             if(err){
                 res.json({
                     success: false,
