@@ -18,11 +18,7 @@ const sendTestSMS = function(req,res){
 };
 
 const respondToSMS = function(req, res) {
-  const twiml = new MessagingResponse();
-  const message = twiml.message();
-  message.body('Response successfully sent');
-  res.writeHead(200, {'Content-Type': 'text/xml'});
-  res.end(twiml.toString());
+  console.log(req.body);
 }
 
 const sendSMSVerificationCode = function(phoneNumber, verificationCode) {
