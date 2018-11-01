@@ -4,7 +4,6 @@ const crypto       = require('crypto');
 const jwt          = require('jsonwebtoken');
 const Users        = mongoose.model('Users');
 const Transactions = mongoose.model('Transactions');
-const Budgets = mongoose.model('BudgetCategory');
 const mongoURI     = process.env.MONGO_URI;
 const jwtSecret    = process.env.JWT_SECRET;
 
@@ -195,41 +194,10 @@ const getFromBudget = function(req, res) {
     });
 }
 
-const spendingHabits = function(req, res) {
-    console.log('in here');
-    const cutoffMonth = new Date();
-    cutoffMonth.setMonth(cutoffMonth.getMonth()-6);
-    const userID = req.decoded._id;
-    let total = 0.00;
-
-    Transactions.find({user_id: userID, date: {"$gt": cutoffMonth}, isDeleted: false}, async function(err, transaction_list){
-        for(let i = 0; i < transaction_list.length; i++){
-        //console.log('transactionName in for loop: ' + transaction_list[i].name);
-            total = total + transaction_list[i].amount;
-        }
-        total = total/6.0;
-        total = total.toFixed(2);
-        //console.log('after for loop total: ' + total);
-        if(err){
-            res.json({
-                success: false,
-                message: 'Could not find budgets for user'
-            });
-        }
-        else{
-            res.json({
-                success: true,
-                SpendingAverages: total
-            });
-        }
-    });
-}
-
 module.exports = {
     addTransaction,
     removeTransaction,
     updateTransaction,
     getAll,
-    getFromBudget,
-    spendingHabits
+    getFromBudget
 }
