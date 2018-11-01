@@ -1,9 +1,12 @@
 const plaid = require('plaid');
 const mongoose = require('mongoose');
 const moment = require('moment');
+const sms = require('./sms');
 const twilioClient = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 
 const PlaidInstitution = mongoose.model('PlaidInstitutions');
+const BudgetCategory = mongoose.model('BudgetCategory');
+const Transactions = mongoose.model('Transactions');
 
 const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
 const PLAID_DEV_SECRET = process.env.PLAID_DEV_SECRET;
@@ -58,16 +61,33 @@ const linkPlaidAccount = function(req, res) {
 
 const getPlaidTransactions = function(req, res) {
     const today = moment().format('YYYY-MM-DD');
-    const thirtyDaysAgo = moment().subtract(30, 'days').format('YYYY-MM-DD');
+    const oneDayAgo = moment().subtract(1, 'days').format('YYYY-MM-DD');
     const userID = mongoose.Types.ObjectId(req.decoded._id);
-    PlaidInstitution.findOne({user: userID}, (err, account) => {
-        plaidClient.getTransactions(account.accessToken, thirtyDaysAgo, today, (err, result) => {
-            res.json({
-                result
+    BudgetCategory.findOne({user: userID, budgetName: 'Uncategorized Transactions'}, function(err, category) {
+        const uncategorizedBudgetID = category._id;
+        PlaidInstitution.findOne({user: userID}, (err, account) => {
+            plaidClient.getTransactions(account.accessToken, oneDayAgo, today, (err, result) => {
+                let newTransactions = [];
+                for(var i = 0; i < result.transactions.length; i++) {
+                    transaction = result.transactions[i];
+                    console.log(transaction);
+                    const newTransaction = new Transactions();
+                    newTransaction.amount = transaction.amount;
+                    newTransaction.date = transaction.date;
+                    newTransaction.name = transaction.name;
+                    newTransaction.budget_id = uncategorizedBudgetID;
+                    newTransaction.user_id = userID;
+                    newTransactions.push(newTransaction);
+                }
+                Transactions.insertMany(newTransactions, function(err) {
+                    sms.sendTransactionSMSToUser(userID, uncategorizedBudgetID);
+                     res.json({
+                       data: result.transactions
+                    });
+                });
             });
         });
     });
-    
 };
 
 const handlePlaidTransaction = function(req, res) {

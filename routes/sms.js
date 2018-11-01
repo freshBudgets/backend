@@ -2,6 +2,8 @@ const twilioClient = require('twilio')(process.env.TWILIO_SID, process.env.TWILI
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 const mongoose = require('mongoose');
 const Users = mongoose.model('Users');
+const Transactions = mongoose.model('Transactions');
+const BudgetCategories = mongoose.model('BudgetCategory');
 
 const sendTestSMS = function(req,res){
   console.log(req.body);
@@ -17,13 +19,24 @@ const sendTestSMS = function(req,res){
     .done();
 };
 
-const respondToSMS = function(req, res) {
-  const twiml = new MessagingResponse();
-  const message = twiml.message();
-  message.body('Response successfully sent');
-  res.writeHead(200, {'Content-Type': 'text/xml'});
-  res.end(twiml.toString());
-}
+const receiveSMS = function(req, res) {
+  const budgetName = req.body.Body;
+  const fromPhoneNumber = parseInt(req.body.From.substring(2));
+  Users.findOne({phoneNumber: fromPhoneNumber}, function(err, user) {
+    const userID = user._id;
+    BudgetCategories.findOne({budgetName: budgetName, user: userID}, function(err, budget) {
+      Transactions.findOne({_id: user.lastTextedTransaction}, function(err, transaction) {
+        transaction.budget_id = budget._id;
+        budget.currentAmount -= transaction.amount;
+        transaction.save();
+        budget.save();
+        BudgetCategories.findOne({budgetName: 'Uncategorized Transactions', user: userID}, function(err, uncategorizedBudget) {
+          sendTransactionSMSToUser(userID, uncategorizedBudget._id);
+        });
+      });
+    });
+  });
+};
 
 const sendSMSVerificationCode = function(phoneNumber, verificationCode) {
   twilioClient.messages.create({
@@ -65,9 +78,41 @@ const verifySMSVerificationCode = function(req, res) {
   });
 };
 
+const sendTransactionSMSToUser = function(userID, budgetID) {
+ console.log(userID);
+ console.log(budgetID);
+  var transaction;
+  Transactions.find({user_id: userID, budget_id: budgetID}, function(err, transactions) {
+    transaction = transactions[0];
+    console.log(transaction);
+    console.log(transactions);
+   Users.findOne({_id: userID}, function(err, user){
+    twilioClient.messages.create({
+      body: 'Fresh Budgets received a new Transaction!\n' + 
+      'Name: ' + transaction.name + '\n' +
+      'Amount: ' + transaction.amount + '\n' +
+      'Date: ' + transaction.date + '\n' +
+      'Reply with the name of the budget you would like to add this transaction to.',
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: '+1' + user.phoneNumber
+    })
+    .then(message => {
+      console.log(message.sid);
+    })
+    .done();
+    user.lastTextedTransaction = transaction._id;
+    user.save();
+  });
+  });
+
+  
+
+};
+
 module.exports = {
   sendTestSMS,
-  respondToSMS,
+  receiveSMS,
   sendSMSVerificationCode,
-  verifySMSVerificationCode
+  verifySMSVerificationCode,
+  sendTransactionSMSToUser
 }

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const sms = require('./sms');
 const Users = mongoose.model('Users');
 const jwtSecret = process.env.JWT_SECRET;
+const BudgetCategory = mongoose.model('BudgetCategory');
 
 //this is a change
 
@@ -50,7 +51,7 @@ const signup = function(req, res) {
     newUser.generateSMSVerificationCode();
     newUser.isVerified = false;
     //Save new user
-    return newUser.save(function(err) {
+    newUser.save(function(err) {
       if (err) {
         console.log(err.errors);
         res.json({
@@ -61,11 +62,28 @@ const signup = function(req, res) {
       }
       else {
         sms.sendSMSVerificationCode(newUser.phoneNumber, newUser.smsVerificationCode);
-        res.json({
-          success: true,
-          message: "user successfully created",
-          token: newUser.createJWT(),
-          user: newUser.toJSON()
+        const uncategorizedBudget = new BudgetCategory();
+        uncategorizedBudget.user = mongoose.Types.ObjectId(newUser._id);
+        uncategorizedBudget.budgetName = 'Uncategorized Transactions';
+        uncategorizedBudget.budgetLimit = 100;
+        uncategorizedBudget.currentAmount = 0;
+        uncategorizedBudget.save(function(err) {
+          if (err) {
+            console.log(err.errors);
+            res.json({
+              success: false,
+              errorMap: { message: "failed to save user." },
+              token: null
+            });
+          }
+          else {
+            res.json({
+              success: true,
+              message: "user successfully created",
+              token: newUser.createJWT(),
+              user: newUser.toJSON()
+            });
+          }
         });
       }
     });

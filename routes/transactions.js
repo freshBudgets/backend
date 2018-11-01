@@ -6,6 +6,7 @@ const Users        = mongoose.model('Users');
 const Transactions = mongoose.model('Transactions');
 const mongoURI     = process.env.MONGO_URI;
 const jwtSecret    = process.env.JWT_SECRET;
+const moment = require('moment');
 
 // adds a transaction to the Transactions collection
 const addTransaction = function(req, res) {
@@ -191,7 +192,7 @@ const getFromBudget = function(req, res) {
             });
         }
     });
-}
+};
 
 
 module.exports = {
@@ -199,5 +200,5 @@ module.exports = {
     removeTransaction,
     updateTransaction,
     getAll,
-    getFromBudget
-}
+    getFromBudget,
+};

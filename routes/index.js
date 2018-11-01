@@ -6,7 +6,7 @@ router.post('/login', auth.login);
 router.post('/verifyPhone', auth.verifyPhone);
 
 const sms = require('./sms');
-router.post('/sms/receive', sms.respondToSMS);
+router.post('/sms/receive', sms.receiveSMS);
 router.post('/sms/sendTest', sms.sendTestSMS);
 
 
