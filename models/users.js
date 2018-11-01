@@ -17,7 +17,8 @@ const UserSchema = new Schema({
   smsVerificationCode: Number,
   emailNotifications: {type: Boolean, default: true},
   smsNotifications: {type: Boolean, default: true},
-  plaidInstitutions: [{type: Schema.Types.ObjectId, ref: 'PlaidInstituions'}]
+  plaidInstitutions: [{type: Schema.Types.ObjectId, ref: 'PlaidInstituions'}],
+  lastTextedTransaction: String
 });
 
 UserSchema.methods.setPassword = function(password) {
