@@ -35,8 +35,6 @@ const receiveSMS = function(req, res) {
             });
           });
         });
-        
-
       });
     });
   });

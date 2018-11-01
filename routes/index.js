@@ -39,7 +39,7 @@ const transactions = require('./transactions');
 router.post('/transactions/add', transactions.addTransaction);
 router.post('/transactions/remove', transactions.removeTransaction);
 router.post('/transactions/update', transactions.updateTransaction);
-router.post('/transactions/getFromBudget', transactions.getFromBudget);
+router.get('/transactions/budget/:id', transactions.getFromBudget);
 router.get('/transactions/', transactions.getAll);
 
 module.exports = router;
