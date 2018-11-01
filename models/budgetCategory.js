@@ -8,7 +8,7 @@ const BudgetCategorySchema = new Schema({
     budgetLimit: Number,
     currentAmount: Number,
     user: {type: Schema.Types.ObjectId, ref: 'Users'},
-    isDeleted: {type: Boolean, default: false}
+    isDeleted: {type: Boolean, default: false},
   });
 
 mongoose.model('BudgetCategory', BudgetCategorySchema);

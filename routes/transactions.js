@@ -195,103 +195,34 @@ const getFromBudget = function(req, res) {
     });
 }
 
-const moveTransaction = function(req, res) {
-    //console.log('in here');
-    const userID = mongoose.Types.ObjectId(req.decoded._id);
-    
-    Transactions.findOne({_id: req.body.transaction_id, user_id: userID, isDeleted: false}, function(err, transaction) {
-        //console.log("transaction: " + transaction);
-        if (err) {
+const spendingHabits = function(req, res) {
+    console.log('in here');
+    const cutoffMonth = new Date();
+    cutoffMonth.setMonth(cutoffMonth.getMonth()-6);
+    const userID = req.decoded._id;
+    let total = 0.00;
+
+    Transactions.find({user_id: userID, date: {"$gt": cutoffMonth}, isDeleted: false}, async function(err, transaction_list){
+        for(let i = 0; i < transaction_list.length; i++){
+        //console.log('transactionName in for loop: ' + transaction_list[i].name);
+            total = total + transaction_list[i].amount;
+        }
+        total = total/6.0;
+        total = total.toFixed(2);
+        //console.log('after for loop total: ' + total);
+        if(err){
             res.json({
                 success: false,
-                message: 'Could not find transaction for user'
+                message: 'Could not find budgets for user'
             });
         }
-        Budgets.findOne({userID: userID, isDeleted: false, _id: req.body.new_budget_id}, function(err, budget) {
-            //console.log("transaction: ", transaction.length);
-            //console.log("budget: " + budget);
-            if(transaction && budget) {
-                    transaction.budget_id = budget._id;
-                    transaction.save(function(err){
-                        res.json({
-                            success: true,
-                            message: 'Successfully switched budgets'
-                        });
-                    }) 
-            }
-            else{
-                res.json({
-                    success: false,
-                    message: 'Could not find budget for user'
-                });
-            }
-        });
+        else{
+            res.json({
+                success: true,
+                SpendingAverages: total
+            });
+        }
     });
-
-}
-
-const getTransactionTime = function(req, res) {
-    const cutoff = new Date();
-    //const cutoff = '2017-10-29 00:00:00.000+00:00';
-    const userID = req.decoded._id;
-    const time = req.params.time;
-    if (time === 'month'){
-        //var cutoff = new Date();
-        cutoff.setMonth(cutoff.getMonth()-1);
-        //
-        Transactions.find({user_id: userID, date: {"$gt": cutoff}, isDeleted: false}, function(err, transaction_list){
-            console.log('list: ' + transaction_list);
-            if(err){
-                res.json({
-                    success: false,
-                    message: 'Could not find transactions for user in this time scale'
-                });
-            }
-            else{
-                res.json({
-                    success: true,
-                    transaction_list: transaction_list
-                });
-            }
-        });
-    }
-    else if (time === '6months'){
-        //var cutoff = new Date();
-        cutoff.setMonth(cutoff.getMonth()-6);
-        Transactions.find({user_id: userID, date: {"$gt": cutoff}, isDeleted: false}, function(err, transaction_list){
-            if(err){
-                res.json({
-                    success: false,
-                    message: 'Could not find transactions for user in this time scale'
-                });
-            }
-            else{
-                res.json({
-                    success: true,
-                    transaction_list: transaction_list
-                });
-            }
-        });
-    }
-    //last is year
-    else {
-        //var cutoff = new Date();
-        cutoff.setMonth(cutoff.getMonth()-12);
-        Transactions.find({user_id: userID, date: {"$gt": cutoff}, isDeleted: false}, function(err, transaction_list){
-            if(err){
-                res.json({
-                    success: false,
-                    message: 'Could not find transactions for user in this time scale'
-                });
-            }
-            else{
-                res.json({
-                    success: true,
-                    transaction_list: transaction_list
-                });
-            }
-        });
-    }
 }
 
 module.exports = {
@@ -300,6 +231,5 @@ module.exports = {
     updateTransaction,
     getAll,
     getFromBudget,
-    moveTransaction,
-    getTransactionTime
+    spendingHabits
 }
