@@ -195,41 +195,6 @@ const getFromBudget = function(req, res) {
     });
 }
 
-const moveTransaction = function(req, res) {
-    //console.log('in here');
-    const userID = mongoose.Types.ObjectId(req.decoded._id);
-    
-    Transactions.findOne({_id: req.body.transaction_id, user_id: userID, isDeleted: false}, function(err, transaction) {
-        //console.log("transaction: " + transaction);
-        if (err) {
-            res.json({
-                success: false,
-                message: 'Could not find transaction for user'
-            });
-        }
-        Budgets.findOne({userID: userID, isDeleted: false, _id: req.body.new_budget_id}, function(err, budget) {
-            //console.log("transaction: ", transaction.length);
-            //console.log("budget: " + budget);
-            if(transaction && budget) {
-                    transaction.budget_id = budget._id;
-                    transaction.save(function(err){
-                        res.json({
-                            success: true,
-                            message: 'Successfully switched budgets'
-                        });
-                    }) 
-            }
-            else{
-                res.json({
-                    success: false,
-                    message: 'Could not find budget for user'
-                });
-            }
-        });
-    });
-
-}
-
 const getTransactionTime = function(req, res) {
     const cutoff = new Date();
     //const cutoff = '2017-10-29 00:00:00.000+00:00';
@@ -300,6 +265,5 @@ module.exports = {
     updateTransaction,
     getAll,
     getFromBudget,
-    moveTransaction,
     getTransactionTime
 }
