@@ -28,11 +28,15 @@ const receiveSMS = function(req, res) {
       Transactions.findOne({_id: user.lastTextedTransaction}, function(err, transaction) {
         transaction.budget_id = budget._id;
         budget.currentAmount -= transaction.amount;
-        transaction.save();
-        budget.save();
-        BudgetCategories.findOne({budgetName: 'Uncategorized Transactions', user: userID}, function(err, uncategorizedBudget) {
-          sendTransactionSMSToUser(userID, uncategorizedBudget._id);
+        transaction.save(function(err) {
+          budget.save(function(err) {
+            BudgetCategories.findOne({budgetName: 'Uncategorized Transactions', user: userID}, function(err, uncategorizedBudget) {
+              sendTransactionSMSToUser(userID, uncategorizedBudget._id);
+            });
+          });
         });
+        
+
       });
     });
   });
