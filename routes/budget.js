@@ -146,9 +146,10 @@ const spendingHabits = function(req, res) {
   const cutoffMonth = new Date();
   cutoffMonth.setMonth(cutoffMonth.getMonth()-6);
   const userID = req.decoded._id;
+  const budgetID = req.params.id;
   let total = 0.00;
 
-  Transactions.find({user_id: userID, date: {"$gt": cutoffMonth}, isDeleted: false}, async function(err, transaction_list){
+  Transactions.find({user_id: userID, date: {"$gt": cutoffMonth}, budget_id: budgetID, isDeleted: false}, async function(err, transaction_list){
       for(let i = 0; i < transaction_list.length; i++){
       //console.log('transactionName in for loop: ' + transaction_list[i].name);
           total = total + transaction_list[i].amount;

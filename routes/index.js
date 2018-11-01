@@ -21,7 +21,7 @@ router.get('/user', user.user);
 
 const budget = require('./budget');
 router.get('/budget', budget.getAll);
-router.get('/budget/spendingHabits', budget.spendingHabits);
+router.get('/budget/spendingHabits/:id', budget.spendingHabits);
 router.get('/budget/:id', budget.getOne);
 router.post('/budget/', budget.createCategory);
 router.post('/budget/edit', budget.editCategory);
