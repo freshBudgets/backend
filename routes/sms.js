@@ -24,7 +24,7 @@ const receiveSMS = function(req, res) {
   const fromPhoneNumber = parseInt(req.body.From.substring(2));
   Users.findOne({phoneNumber: fromPhoneNumber}, function(err, user) {
     const userID = user._id;
-    BudgetCategories.findOne({budgetName: budgetName, user: userID}, function(err, budget) {
+    BudgetCategories.findOne({budgetName: budgetName, user: userID, isDeleted: false}, function(err, budget) {
       Transactions.findOne({_id: user.lastTextedTransaction}, function(err, transaction) {
         transaction.budget_id = budget._id;
         budget.currentAmount -= transaction.amount;
