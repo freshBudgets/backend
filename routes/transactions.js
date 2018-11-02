@@ -4,6 +4,7 @@ const crypto       = require('crypto');
 const jwt          = require('jsonwebtoken');
 const Users        = mongoose.model('Users');
 const Transactions = mongoose.model('Transactions');
+const BudgetCategories = mongoose.model('BudgetCategories');
 const Budgets = mongoose.model('BudgetCategory');
 const mongoURI     = process.env.MONGO_URI;
 const jwtSecret    = process.env.JWT_SECRET;
@@ -86,7 +87,17 @@ const updateTransaction = function(req, res) {
             transaction.amount = params.amount;
             transaction.date = params.date;
             transaction.name = params.name;
-            transaction.budget_id = params. budget_id;
+            if (params.currentBudget != params.newBudget) {
+                BudgetCategories.findOne({_id: params.newBudget}, function(err, newBudget){
+                    newBudget.currentAmount += transaction.amount;
+                    newBudget.save();
+                });
+                BudgetCategories.findOne({_id: params.currentBudget}, function(err, currentBudget){
+                    currentBudget.currentAmount -= transaction.amount;
+                    currentBudget.save();
+                });
+                transaction.budget_id = params.newBudget;
+            }
 
             transaction.save(function(err) {
                 if(err) {
