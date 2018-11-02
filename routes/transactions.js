@@ -5,10 +5,6 @@ const jwt          = require('jsonwebtoken');
 const Users        = mongoose.model('Users');
 const Transactions = mongoose.model('Transactions');
 const BudgetCategories = mongoose.model('BudgetCategory');
-const Budgets = mongoose.model('BudgetCategory');
-const mongoURI     = process.env.MONGO_URI;
-const jwtSecret    = process.env.JWT_SECRET;
-const moment = require('moment');
 
 // adds a transaction to the Transactions collection
 const addTransaction = function(req, res) {
