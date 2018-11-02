@@ -13,7 +13,7 @@ const addTransaction = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
     //Check if all needed information is sent in request
-    if(!params.amount || !params.date || !params.name || !params.budget_id) {
+    if(!params.amount || !params.date || !params.name || !params.budget_id ) {
         res.json({
             success: false,
             message: 'Not enough information to update settings'
@@ -52,7 +52,7 @@ const updateTransaction = function(req, res) {
     console.log("start update\n");
 
     //Check if all needed information is sent in request
-    if(!params.transaction_id || !params.amount || !params.date || !params.name || !params.budget_id) {
+    if(!params.transaction_id || !params.amount || !params.date || !params.name ) {
         res.json({
             success: false,
             message: 'Not enough information to update settings'
