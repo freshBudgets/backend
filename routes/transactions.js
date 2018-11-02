@@ -7,6 +7,7 @@ const Transactions = mongoose.model('Transactions');
 const Budgets = mongoose.model('BudgetCategory');
 const mongoURI     = process.env.MONGO_URI;
 const jwtSecret    = process.env.JWT_SECRET;
+const moment = require('moment');
 
 // adds a transaction to the Transactions collection
 const addTransaction = function(req, res) {
@@ -167,11 +168,12 @@ const getAll = function(req, res) {
 
 // returns all transactions from a specific budget for current user
 const getFromBudget = function(req, res) {
-    var params = req.body;
+    const params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
+    const budgetId = req.params.id;
 
     //Check if all needed information is sent in request
-    if(!budget_id) {
+    if(!budgetId) {
         res.json({
             success: false,
             message: 'Not enough information to update settings'
@@ -179,10 +181,10 @@ const getFromBudget = function(req, res) {
         return;
     }
     
-    Transactions.find({user_id: userID, budget_id: params.budget_id, isDeleted: false}, function(err, transactions) {
+    Transactions.find({user_id: userID, budget_id: budgetId, isDeleted: false}, function(err, transactions) {
         if(transactions.length > 0) {
             res.json({
-		        success: true,
+                success: true,
                 transactions: transactions
             });
         }
@@ -193,7 +195,7 @@ const getFromBudget = function(req, res) {
             });
         }
     });
-}
+};
 
 const getTransactionTime = function(req, res) {
     const cutoff = new Date();
@@ -266,4 +268,4 @@ module.exports = {
     getAll,
     getFromBudget,
     getTransactionTime
-}
+};

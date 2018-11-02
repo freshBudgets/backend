@@ -1,12 +1,17 @@
 const plaid = require('plaid');
 const mongoose = require('mongoose');
+const moment = require('moment');
+const sms = require('./sms');
+const twilioClient = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 
 const PlaidInstitution = mongoose.model('PlaidInstitutions');
+const BudgetCategory = mongoose.model('BudgetCategory');
+const Transactions = mongoose.model('Transactions');
 
 const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
 const PLAID_DEV_SECRET = process.env.PLAID_DEV_SECRET;
 const PLAID_PUBLIC_ID = process.env.PLAID_PUBLIC_ID;
-const PLAID_ENV = plaid.environments.sandbox;
+const PLAID_ENV = plaid.environments.development;
 const plaidClient = new plaid.Client(PLAID_CLIENT_ID, PLAID_DEV_SECRET, PLAID_PUBLIC_ID, PLAID_ENV);
 
 const linkPlaidAccount = function(req, res) {
@@ -54,8 +59,49 @@ const linkPlaidAccount = function(req, res) {
     });
 };
 
+const getPlaidTransactions = function(req, res) {
+    const today = moment().format('YYYY-MM-DD');
+    const oneDayAgo = moment().subtract(1, 'days').format('YYYY-MM-DD');
+    const userID = mongoose.Types.ObjectId(req.decoded._id);
+    BudgetCategory.findOne({user: userID, budgetName: 'Uncategorized Transactions'}, function(err, category) {
+        const uncategorizedBudgetID = category._id;
+        PlaidInstitution.findOne({user: userID}, (err, account) => {
+            plaidClient.getTransactions(account.accessToken, oneDayAgo, today, (err, result) => {
+                let newTransactions = [];
+                for(var i = 0; i < result.transactions.length; i++) {
+                    transaction = result.transactions[i];
+                    console.log(transaction);
+                    const newTransaction = new Transactions();
+                    newTransaction.amount = transaction.amount;
+                    newTransaction.date = transaction.date;
+                    newTransaction.name = transaction.name;
+                    newTransaction.budget_id = uncategorizedBudgetID;
+                    newTransaction.user_id = userID;
+                    newTransactions.push(newTransaction);
+                }
+                Transactions.insertMany(newTransactions, function(err) {
+                    sms.sendTransactionSMSToUser(userID, uncategorizedBudgetID);
+                     res.json({
+                       data: result.transactions
+                    });
+                });
+            });
+        });
+    });
+};
+
 const handlePlaidTransaction = function(req, res) {
-    // const params = req.body;
+    const params = req.body;
+    twilioClient.messages.create({
+        body: 'webhook hit' + params,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: '+12069140659'
+      })
+      .then(message => {
+        console.log(message.sid);
+        res.json({ messageID: message.sid });
+      })
+      .done();
     // if (params.webhook_code == "DEFAULT UPDATE" && params.webhook_type == "TRANSACTIONS") {
     //     PlaidInstitution.findOne({itemID: params.item_id}, function(err, plaid) {
     //         const now = moment().format('YYYY-MM-DD');
@@ -76,11 +122,12 @@ const handlePlaidTransaction = function(req, res) {
     //get response from user, handle updating budget
 
     //STUBBED FOR NOW
-    res.json({success: true, message:"stub"});
+    //res.json({success: true, message:"stub"});
 };
 
 module.exports = {
     linkPlaidAccount,
-    handlePlaidTransaction
+    handlePlaidTransaction,
+    getPlaidTransactions
 };
 

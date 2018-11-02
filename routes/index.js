@@ -6,7 +6,7 @@ router.post('/login', auth.login);
 router.post('/verifyPhone', auth.verifyPhone);
 
 const sms = require('./sms');
-router.post('/sms/receive', sms.respondToSMS);
+router.post('/sms/receive', sms.receiveSMS);
 router.post('/sms/sendTest', sms.sendTestSMS);
 
 
@@ -33,12 +33,13 @@ router.get('/settings', settings.getSettings);
 const plaid = require('./plaid');
 router.post('/plaid/link', plaid.linkPlaidAccount);
 router.post('/plaid/transaction', plaid.handlePlaidTransaction);
+router.post('/plaid/getTransactions', plaid.getPlaidTransactions);
 
 const transactions = require('./transactions');
 router.post('/transactions/add', transactions.addTransaction);
 router.post('/transactions/remove', transactions.removeTransaction);
 router.post('/transactions/update', transactions.updateTransaction);
-router.post('/transactions/getFromBudget', transactions.getFromBudget);
+router.get('/transactions/budget/:id', transactions.getFromBudget);
 router.get('/transactions/', transactions.getAll);
 router.get('/transactions/:time', transactions.getTransactionTime);
 
