@@ -4,13 +4,15 @@ const crypto       = require('crypto');
 const jwt          = require('jsonwebtoken');
 const Users        = mongoose.model('Users');
 const Transactions = mongoose.model('Transactions');
+const Budgets = mongoose.model('BudgetCategory');
 const mongoURI     = process.env.MONGO_URI;
 const jwtSecret    = process.env.JWT_SECRET;
 const moment = require('moment');
 
 // adds a transaction to the Transactions collection
 const addTransaction = function(req, res) {
-    var params = req.body; 
+    var params = req.body;
+    req.body.date = new Date();
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
     //Check if all needed information is sent in request
@@ -195,6 +197,69 @@ const getFromBudget = function(req, res) {
     });
 };
 
+const getTransactionTime = function(req, res) {
+    const cutoff = new Date();
+    //const cutoff = '2017-10-29 00:00:00.000+00:00';
+    const userID = req.decoded._id;
+    const time = req.params.time;
+    if (time === 'month'){
+        //var cutoff = new Date();
+        cutoff.setMonth(cutoff.getMonth()-1);
+        //
+        Transactions.find({user_id: userID, date: {"$gt": cutoff}, isDeleted: false}, function(err, transaction_list){
+            console.log('list: ' + transaction_list);
+            if(err){
+                res.json({
+                    success: false,
+                    message: 'Could not find transactions for user in this time scale'
+                });
+            }
+            else{
+                res.json({
+                    success: true,
+                    transaction_list: transaction_list
+                });
+            }
+        });
+    }
+    else if (time === '6months'){
+        //var cutoff = new Date();
+        cutoff.setMonth(cutoff.getMonth()-6);
+        Transactions.find({user_id: userID, date: {"$gt": cutoff}, isDeleted: false}, function(err, transaction_list){
+            if(err){
+                res.json({
+                    success: false,
+                    message: 'Could not find transactions for user in this time scale'
+                });
+            }
+            else{
+                res.json({
+                    success: true,
+                    transaction_list: transaction_list
+                });
+            }
+        });
+    }
+    //last is year
+    else {
+        //var cutoff = new Date();
+        cutoff.setMonth(cutoff.getMonth()-12);
+        Transactions.find({user_id: userID, date: {"$gt": cutoff}, isDeleted: false}, function(err, transaction_list){
+            if(err){
+                res.json({
+                    success: false,
+                    message: 'Could not find transactions for user in this time scale'
+                });
+            }
+            else{
+                res.json({
+                    success: true,
+                    transaction_list: transaction_list
+                });
+            }
+        });
+    }
+}
 
 module.exports = {
     addTransaction,
@@ -202,4 +267,5 @@ module.exports = {
     updateTransaction,
     getAll,
     getFromBudget,
+    getTransactionTime
 };
