@@ -27,7 +27,7 @@ const receiveSMS = function(req, res) {
     BudgetCategories.findOne({budgetName: budgetName, user: userID, isDeleted: false}, function(err, budget) {
       Transactions.findOne({_id: user.lastTextedTransaction}, function(err, transaction) {
         transaction.budget_id = budget._id;
-        budget.currentAmount -= transaction.amount;
+        budget.currentAmount += transaction.amount;
         transaction.save(function(err) {
           budget.save(function(err) {
             BudgetCategories.findOne({budgetName: 'Uncategorized Transactions', user: userID}, function(err, uncategorizedBudget) {
