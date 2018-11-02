@@ -126,7 +126,7 @@ const removeTransaction = function(req, res) {
     }
     
     else {
-        Transactions.findOne({_id :budgetID, user:userID}, function(err, transaction) {
+        Transactions.findOne({_id :params.transaction_id}, function(err, transaction) {
             if(err) {
               res.json({
                 success: false,
