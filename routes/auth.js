@@ -17,7 +17,7 @@ const verifyToken = function(req, res, next) {
   if (token) {
     jwt.verify(token, jwtSecret, function(err, decoded) {
       if(err) {
-        return res.json({
+        return res.status(401).send({
           success: false,
           message: "Failed to authenticate token."
         });
