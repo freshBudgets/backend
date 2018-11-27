@@ -49,8 +49,6 @@ const updateTransaction = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
-    console.log("start update\n");
-
     //Check if all needed information is sent in request
     if(!params.transaction_id || !params.amount || !params.date || !params.name ) {
         res.json({

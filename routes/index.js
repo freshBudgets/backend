@@ -45,5 +45,7 @@ router.get('/transactions/:time', transactions.getTransactionTime);
 
 const bills = require('./bills');
 router.post('/bills/add', bills.addBill);
+router.post('/bills/update', bills.updateBill);
+router.post('/bills/remove', bills.removeBill);
 
 module.exports = router;

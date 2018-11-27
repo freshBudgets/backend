@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const BillsSchema = new Schema({
-    date: Date,
+    day_of_month: Number,
     name: String,
     user_id: String,
-    isDeleted: {type: Boolean, default: false}
+    is_deleted: {type: Boolean, default: false}
   });
 
 mongoose.model('Bills', BillsSchema);
