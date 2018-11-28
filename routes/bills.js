@@ -5,6 +5,7 @@ const jwt              = require('jsonwebtoken');
 const Bills            = mongoose.model("Bills")
 
 // adds a bill to the bills collection
+// TESTED
 const addBill = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
@@ -49,6 +50,7 @@ const addBill = function(req, res) {
 }
 
 // updates a bill
+// TESTED 
 const updateBill = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
@@ -114,6 +116,8 @@ const updateBill = function(req, res) {
 }
 
 // remove a bill from the bills collection
+// sets bill's is_deleted value to false
+// TESTED
 const removeBill = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
@@ -170,6 +174,7 @@ const removeBill = function(req, res) {
 }
 
 // checks if there are any bills coming up. If there are, email user
+// TODO
 const checkBills = function(req, res) {
     return;
 }
