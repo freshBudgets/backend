@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 const BudgetCategories = mongoose.model('BudgetCategory');
 const Transactions = mongoose.model('Transactions');
+const moment = require('moment');
 const User = mongoose.model('Users');
 
 const getAll = (req, res) => {
@@ -141,42 +142,21 @@ var deleteCategory = function(req, res) {
   });
 }
 
-function getWeekNumber(d) {
-  // Copy date so don't modify original
-  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  // Set to nearest Thursday: current date + 4 - current day number
-  // Make Sunday's day number 7
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-  // Get first day of year
-  var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-  // Calculate full weeks to nearest Thursday
-  var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
-  // Return array of year and week number
-  return [d.getUTCFullYear(), weekNo];
-}
-
 const setBudget = function(req, res) {
   const userID = req.decoded._id;
   const budgetID = req.params.id;
-  //console.log('budget id: ' + budgetID);
-  const cutoff = getWeekNumber(new Date());
-  //cutoff.setMonth((new Date()).getMonth()-1);
+  const cutoff = moment().format("W, YYYY");
   BudgetCategories.findOne({_id: budgetID, user: userID, isDeleted: false}, function(err, budget){
       if(err){
           console.log('ERROR');
       }
-      //console.log('budget id2: ' + budget);
       Transactions.find({budget_id: budget._id, user_id: userID, isDeleted: false}, function(err, transaction_list){
-          //console.log('list: ' + transaction_list);
           budget.currentAmount = 0;
           for(var i = 0; i < transaction_list.length; i++){
-              const transactionDate = getWeekNumber(transaction_list[i].date);
-              console.log('transaction name: ' + transaction_list[i].name);
-              console.log('transaction date: ' + transactionDate);
-              console.log('transaction cutoff: ' + cutoff);
-              console.log('===: ' + transactionDate===cutoff)
-              if(transactionDate[1] === cutoff[1] && transactionDate[0] === cutoff[0]){
-                  console.log('in here');
+              const transactionDate = moment(transaction_list[i].date).format("W, YYYY");;
+              //console.log('transaction date: ' + transactionDate);
+              //console.log('transaction cutoff: ' + cutoff);
+              if(transactionDate === cutoff){
                   budget.currentAmount = budget.currentAmount + transaction_list[i].amount;
               }
           }

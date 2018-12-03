@@ -43,4 +43,5 @@ router.post('/transactions/update', transactions.updateTransaction);
 router.get('/transactions/budget/:id', transactions.getFromBudget);
 router.get('/transactions/', transactions.getAll);
 router.get('/transactions/:time', transactions.getTransactionTime);
+
 module.exports = router;
