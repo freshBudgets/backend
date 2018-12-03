@@ -47,6 +47,7 @@ const bills = require('./bills');
 router.post('/bills/add', bills.addBill);
 router.post('/bills/update', bills.updateBill);
 router.post('/bills/remove', bills.removeBill);
-router.post('/bills/check', bills.checkBill);
+router.post('/bills/check', bills.checkBills);
+router.post('/bills/test', bills.testMail);
 
 module.exports = router;

@@ -1,8 +1,10 @@
-const mongoose         = require('mongoose');
-const passport         = require('passport');
-const crypto           = require('crypto');
-const jwt              = require('jsonwebtoken');
-const Bills            = mongoose.model("Bills")
+const mongoose   = require('mongoose');
+const passport   = require('passport');
+const crypto     = require('crypto');
+const jwt        = require('jsonwebtoken');
+const Bills      = mongoose.model("Bills")
+const nodemailer = require('nodemailer');
+const async      = require('async');
 
 // adds a bill to the bills collection
 // TESTED
@@ -11,27 +13,27 @@ const addBill = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
     
     // check if all needed information is sent in request
-    if(!params.day_of_month || !params.name) {
+    if(!params.dayOfMonthDue || !params.name) {
         res.json({
             success: false,
-            message: 'Not enough information to update settings'
+            message: 'Not enough information to add bill'
         });
         return;
     }
 
     // if day of month is less than 1 or greater than 31 return error
-    if(params.day_of_month <= 0 || params.day_of_month > 31) {
+    if(params.dayOfMonthDue <= 0 || params.dayOfMonthDue > 31) {
         res.json({
             success: false,
-            message: 'Incorrect day of month'
+            message: 'Invalid day of month'
         });
         return;
     }
 
     var newBill = new Bills(); 
     newBill.name = params.name;
-    newBill.day_of_month = params.day_of_month;
-    newBill.user_id = userID;
+    newBill.dayOfMonthDue = params.dayOfMonthDue;
+    newBill.userId = userID;
 
     newBill.save(function(err){
         if (err){
@@ -56,7 +58,7 @@ const updateBill = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
     //Check if all needed information is sent in request
-    if(!params.bill_id || !params.day_of_month || !params.name) {
+    if(!params.billId || !params.dayOfMonthDue || !params.name) {
         res.json({
             success: false,
             message: 'Not enough information to update settings'
@@ -65,7 +67,7 @@ const updateBill = function(req, res) {
     }
 
     // if day of month is less than 1 or greater than 31 return error
-    if(params.day_of_month <= 0 || params.day_of_month > 31) {
+    if(params.dayOfMonthDue <= 0 || params.dayOfMonthDue > 31) {
         res.json({
             success: false,
             message: 'Incorrect day of month'
@@ -74,7 +76,7 @@ const updateBill = function(req, res) {
     }
 
     // find bill in Bills collection
-    Bills.findOne({_id: params.bill_id}, function(err, bill) {
+    Bills.findOne({_id: params.billId}, function(err, bill) {
         if(err) {
             res.json({
                 success: false,
@@ -87,7 +89,7 @@ const updateBill = function(req, res) {
                 message: 'Bill does not exist'
             });
         }
-        else if(bill.user_id != userID) {
+        else if(bill.userId != userID) {
             res.json({
                 success: false,
                 message: 'This user is not authorized to edit this bill'
@@ -95,7 +97,7 @@ const updateBill = function(req, res) {
         }
         else {
             bill.name = params.name;
-            bill.day_of_month = params.day_of_month;
+            bill.dayOfMonthDue = params.dayOfMonthDue;
 
             bill.save(function(err) {
                 if(err) {
@@ -116,24 +118,24 @@ const updateBill = function(req, res) {
 }
 
 // remove a bill from the bills collection
-// sets bill's is_deleted value to false
+// sets bill's isDeleted value to false
 // TESTED
 const removeBill = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
     //Check if all needed information is sent in request
-    if(!params.bill_id) {
+    if(!params.billId) {
         res.json({
             success: false,
-            message: 'Not enough information to update settings'
+            message: 'Not enough information to remove bill'
         });
         return;
     }
 
 
     // find bill in Bills collection
-    Bills.findOne({_id: params.bill_id}, function(err, bill) {
+    Bills.findOne({_id: params.billId}, function(err, bill) {
         if(err) {
             res.json({
                 success: false,
@@ -146,14 +148,14 @@ const removeBill = function(req, res) {
                 message: 'Bill does not exist'
             });
         }
-        else if(bill.user_id != userID) {
+        else if(bill.userId != userID) {
             res.json({
                 success: false,
                 message: 'This user is not authorized to delete this bill'
             });
         }
         else {
-            bill.is_deleted = true;
+            bill.isDeleted = true;
     
             bill.save(function(err) {
                 if(err) {
@@ -176,6 +178,78 @@ const removeBill = function(req, res) {
 // checks if there are any bills coming up. If there are, email user
 // TODO
 const checkBills = function(req, res) {
+    var params = req.body;
+    const userID = mongoose.Types.ObjectId(req.decoded._id);
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonth = today.getMonth();
+    var remaining;
+
+    var daysInMonth;
+    if(currentMonth == 1 
+        || currentMonth == 3 
+        || currentMonth == 5 
+        || currentMonth == 7 
+        || currentMonth == 8
+        || currentMonth == 10
+        || currentMonth == 12)
+        daysInMonth = 30;
+    else if(currentMonth == 4
+        || currentMonth == 6
+        || currentMonth == 9
+        || currentMonth == 11)
+        daysInMonth = 31;
+    else if(currentMonth == 2)
+        daysInMonth = 28;
+
+    Bills.find({userId: userID}, function(err, bills) {
+        async.each(bills, function(bill, err) {
+            if(bill.isDeleted != true) {
+                if(bill.dayOfMonthDue < currentDay) {
+                    remaining = daysInMonth - currentDay + bill.dayOfMonthDue;
+                }
+                else if(bill.dayOfMonthDue >= currentDay) {
+                    remaining = bill.dayOfMonthDue - currentDay;
+                }
+                console.log("todays date: " + currentDay);
+                console.log("bill due date: " + bill.dayOfMonthDue);
+                console.log("remaining: " + remaining);
+            }
+        });
+    });
+
+    res.json({});
+    
+    return;
+}
+
+
+const testMail = function(req, res) {
+    var transporter = nodemailer.createTransport({
+        service: 'AOL',
+        auth: {
+            user: 'freshbudgest@aol.com',
+            pass: 'RNcJZzB5'
+        }
+    });
+
+    var mailOptions = {
+        from: 'freshbudgest@aol.com',
+        to: 'kylepollina@gmail.com',
+        subject: 'Sending Email using Node.js',
+        text: 'That was easy!'
+    };
+
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    }); 
+
+    res.json({});
+
     return;
 }
 
@@ -183,5 +257,6 @@ module.exports = {
     addBill,
     updateBill,
     removeBill,
-    checkBills
+    checkBills,
+    testMail
 };

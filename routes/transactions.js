@@ -157,7 +157,7 @@ const getAll = function(req, res) {
     Transactions.find({user_id: userID, isDeleted: false}, function(err, transactions) {
         if(transactions.length > 0) {
             res.json({
-		success: true,
+                success: true,
                 transactions: transactions
             });
         }
