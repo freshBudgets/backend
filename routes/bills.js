@@ -224,6 +224,7 @@ const checkBills = function(req, res) {
 }
 
 
+// does nothing right now
 const testMail = function(req, res) {
     var transporter = nodemailer.createTransport({
         service: 'AOL',
