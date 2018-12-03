@@ -32,7 +32,19 @@ const receiveSMS = function(req, res) {
   else if(messageBody.length == 3 && messageBody[0].toLowerCase() == "create") {
     handleCreateNewBudget(messageBody, fromPhoneNumber);
   }
-
+  else{
+    twilioClient.messages.create({
+      body: 'Not a valid command. Text "commands" to recieve a list of supported commands.',
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: '+1' + fromPhoneNumber
+    })
+    .then(message => {
+      console.log(message.sid);
+      res.json({ messageID: message.sid });
+    })
+    .done();
+    res.end();
+  }
 
 };
 
