@@ -186,6 +186,7 @@ const checkBills = function(req, res) {
     var remaining;
 
     var daysInMonth;
+    // sets the daysInMonth variable according to the current month
     if(currentMonth == 1 
         || currentMonth == 3 
         || currentMonth == 5 
@@ -211,6 +212,8 @@ const checkBills = function(req, res) {
                 else if(bill.dayOfMonthDue >= currentDay) {
                     remaining = bill.dayOfMonthDue - currentDay;
                 }
+
+                // Nothing else happens here
                 console.log("todays date: " + currentDay);
                 console.log("bill due date: " + bill.dayOfMonthDue);
                 console.log("remaining: " + remaining);
@@ -258,6 +261,5 @@ module.exports = {
     addBill,
     updateBill,
     removeBill,
-    checkBills,
-    testMail
+    checkBills
 };
