@@ -22,6 +22,7 @@ router.get('/user', user.user);
 const budget = require('./budget');
 router.get('/budget', budget.getAll);
 router.get('/budget/:id', budget.getOne);
+router.get('/budget/set/:id', budget.setBudget);
 router.post('/budget/', budget.createCategory);
 router.post('/budget/edit', budget.editCategory);
 router.post('/budget/delete', budget.deleteCategory);
@@ -42,5 +43,4 @@ router.post('/transactions/update', transactions.updateTransaction);
 router.get('/transactions/budget/:id', transactions.getFromBudget);
 router.get('/transactions/', transactions.getAll);
 router.get('/transactions/:time', transactions.getTransactionTime);
-
 module.exports = router;
