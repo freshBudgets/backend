@@ -176,7 +176,6 @@ const removeBill = function(req, res) {
 }
 
 // checks if there are any bills coming up. If there are, email user
-// TODO
 const checkBills = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
