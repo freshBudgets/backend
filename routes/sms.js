@@ -20,7 +20,7 @@ const sendTestSMS = function(req,res){
 };
 
 const receiveSMS = function(req, res) {
-  const messageBody = req.body.Body.split(" ");
+  const messageBody = req.body.Body.trim().split(" ");
   const fromPhoneNumber = parseInt(req.body.From.substring(2));
   console.log(messageBody);
   if(messageBody.length == 1 && messageBody[0].toLowerCase() != "commands") {
