@@ -23,10 +23,10 @@ const receiveSMS = function(req, res) {
   const messageBody = req.body.Body.split(" ");
   const fromPhoneNumber = parseInt(req.body.From.substring(2));
   console.log(messageBody);
-  if(messageBody.length == 1 && messageBody[0].toLowerCase() != "help") {
+  if(messageBody.length == 1 && messageBody[0].toLowerCase() != "commands") {
     handleNewTransaction(messageBody[0], fromPhoneNumber);
   }
-  else if(messageBody.length == 1 && messageBody[0].toLowerCase() == "help") {
+  else if(messageBody.length == 1 && messageBody[0].toLowerCase() == "commands") {
     handleSendCommands(fromPhoneNumber);
   }
   else if(messageBody.length == 3 && messageBody[0].toLowerCase() == "create") {
