@@ -49,6 +49,7 @@ const addTransaction = function(req, res) {
 const updateTransaction = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
+
     var fromPhoneNumber;
     Users.findOne({userID: userID}, function(err, user){
         fromPhoneNumber = user.phoneNumber;
@@ -187,7 +188,7 @@ const getAll = function(req, res) {
     Transactions.find({user_id: userID, isDeleted: false}, function(err, transactions) {
         if(transactions.length > 0) {
             res.json({
-		success: true,
+                success: true,
                 transactions: transactions
             });
         }

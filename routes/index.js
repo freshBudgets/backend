@@ -12,7 +12,7 @@ router.post('/sms/sendTest', sms.sendTestSMS);
 
 /********************
  * PROTECTED ROUTES *
- *********************/
+ ********************/
 router.use(auth.verifyToken);
 
 router.post('/sms/verify', sms.verifySMSVerificationCode);
@@ -42,5 +42,11 @@ router.post('/transactions/update', transactions.updateTransaction);
 router.get('/transactions/budget/:id', transactions.getFromBudget);
 router.get('/transactions/', transactions.getAll);
 router.get('/transactions/:time', transactions.getTransactionTime);
+
+const bills = require('./bills');
+router.post('/bills/add', bills.addBill);
+router.post('/bills/update/:id', bills.updateBill);
+router.post('/bills/remove/:id', bills.removeBill);
+router.post('/bills/check', bills.checkBills);
 
 module.exports = router;
