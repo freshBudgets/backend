@@ -56,9 +56,10 @@ const addBill = function(req, res) {
 const updateBill = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
+    const billId = req.params.id;
 
     //Check if all needed information is sent in request
-    if(!params.billId || !params.dayOfMonthDue || !params.name) {
+    if(!params.dayOfMonthDue || !params.name) {
         res.json({
             success: false,
             message: 'Not enough information to update settings'
@@ -76,7 +77,7 @@ const updateBill = function(req, res) {
     }
 
     // find bill in Bills collection
-    Bills.findOne({_id: params.billId}, function(err, bill) {
+    Bills.findOne({_id: billId}, function(err, bill) {
         if(err) {
             res.json({
                 success: false,
@@ -123,19 +124,10 @@ const updateBill = function(req, res) {
 const removeBill = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
-
-    //Check if all needed information is sent in request
-    if(!params.billId) {
-        res.json({
-            success: false,
-            message: 'Not enough information to remove bill'
-        });
-        return;
-    }
-
+    const billId = req.params.id;
 
     // find bill in Bills collection
-    Bills.findOne({_id: params.billId}, function(err, bill) {
+    Bills.findOne({_id: billId}, function(err, bill) {
         if(err) {
             res.json({
                 success: false,
