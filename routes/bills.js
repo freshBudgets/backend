@@ -176,6 +176,8 @@ const removeBill = function(req, res) {
 }
 
 // checks if there are any bills coming up. If there are, email user
+// email functionality currently not implemented
+// TODO implement email functionality
 const checkBills = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
