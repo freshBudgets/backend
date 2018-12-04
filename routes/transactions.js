@@ -298,11 +298,18 @@ const getTransactionTime = function(req, res) {
     }
 }
 
+
+const saveTransaction = function(req, res) {
+    res.json({hello: "goodbye"});
+}
+
+
 module.exports = {
     addTransaction,
     removeTransaction,
     updateTransaction,
     getAll,
     getFromBudget,
-    getTransactionTime
+    getTransactionTime,
+    saveTransaction
 };
