@@ -49,4 +49,7 @@ router.post('/bills/update/:id', bills.updateBill);
 router.post('/bills/remove/:id', bills.removeBill);
 router.post('/bills/check', bills.checkBills);
 
+const accounts = require('./accounts');
+router.get('/accounts', accounts.getAll);
+
 module.exports = router;
