@@ -3,7 +3,6 @@ const passport   = require('passport');
 const crypto     = require('crypto');
 const jwt        = require('jsonwebtoken');
 const Bills      = mongoose.model("Bills")
-const nodemailer = require('nodemailer');
 const async      = require('async');
 
 // adds a bill to the bills collection
@@ -219,36 +218,6 @@ const checkBills = function(req, res) {
     return;
 }
 
-
-// does nothing right now
-const testMail = function(req, res) {
-    var transporter = nodemailer.createTransport({
-        service: 'AOL',
-        auth: {
-            user: 'freshbudgest@aol.com',
-            pass: 'RNcJZzB5'
-        }
-    });
-
-    var mailOptions = {
-        from: 'freshbudgest@aol.com',
-        to: 'kylepollina@gmail.com',
-        subject: 'Sending Email using Node.js',
-        text: 'That was easy!'
-    };
-
-    transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
-    }); 
-
-    res.json({});
-
-    return;
-}
 
 module.exports = {
     addBill,
