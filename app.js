@@ -25,7 +25,11 @@ require('./models/transactions');
 require('./models/plaidInstitutions');
 require('./models/budgetCategory');
 require('./models/users');
+<<<<<<< HEAD
 require('./models/bills');
+=======
+require('./models/SavedTransactions')
+>>>>>>> created savedtransactions model
 
 //Passport config
 require('./passport');

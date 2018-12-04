@@ -6,6 +6,7 @@ const Users        = mongoose.model('Users');
 const Transactions = mongoose.model('Transactions');
 const BudgetCategories = mongoose.model('BudgetCategory');
 const twilioClient = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
+const SavedTransactions = mongoose.model('SavedTransactions');
 
 // adds a transaction to the Transactions collection
 const addTransaction = function(req, res) {
