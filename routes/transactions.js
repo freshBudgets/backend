@@ -51,10 +51,9 @@ const updateTransaction = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
     var fromPhoneNumber;
-    Users.findOne({userID: userID}, function(err, user){
+    Users.findOne({_id: userID}, function(err, user) {
         fromPhoneNumber = user.phoneNumber;
     });
-
     //Check if all needed information is sent in request
     if(!params.transaction_id || !params.amount || !params.date || !params.name ) {
         res.json({
