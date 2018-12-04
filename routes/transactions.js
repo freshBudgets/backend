@@ -5,6 +5,7 @@ const jwt          = require('jsonwebtoken');
 const Users        = mongoose.model('Users');
 const Transactions = mongoose.model('Transactions');
 const BudgetCategories = mongoose.model('BudgetCategory');
+const twilioClient = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 
 // adds a transaction to the Transactions collection
 const addTransaction = function(req, res) {
@@ -49,6 +50,11 @@ const updateTransaction = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
+    var fromPhoneNumber;
+    Users.findOne({userID: userID}, function(err, user){
+        fromPhoneNumber = user.phoneNumber;
+    });
+
     //Check if all needed information is sent in request
     if(!params.transaction_id || !params.amount || !params.date || !params.name ) {
         res.json({
@@ -84,7 +90,32 @@ const updateTransaction = function(req, res) {
             if (params.currentBudget != params.newBudget) {
                 BudgetCategories.findOne({_id: params.newBudget}, function(err, newBudget){
                     newBudget.currentAmount += transaction.amount;
-                    newBudget.save();
+                    newBudget.save(function(err) {
+                        if(newBudget.currentAmount > newBudget.budgetLimit) {
+                            twilioClient.messages.create({
+                                body: 'Your budget: ' + newBudget.budgetName + 'has gone overbudget.',
+                                from: process.env.TWILIO_PHONE_NUMBER,
+                                to: '+1' + fromPhoneNumber
+                              })
+                              .then(message => {
+                                console.log(message.sid);
+                                res.json({ messageID: message.sid });
+                              })
+                              .done();
+                        }
+                        else if((newBudget.currentAmount*1.0)/newBudget.budgetLimit >= 0.75) {
+                            twilioClient.messages.create({
+                                body: 'Your budget: ' + newBudget.budgetName + ', is 75% or more to its limit. Watch your spending!',
+                                from: process.env.TWILIO_PHONE_NUMBER,
+                                to: '+1' + fromPhoneNumber
+                              })
+                              .then(message => {
+                                console.log(message.sid);
+                                res.json({ messageID: message.sid });
+                              })
+                              .done();
+                        }
+                    });
                 });
                 BudgetCategories.findOne({_id: params.currentBudget}, function(err, currentBudget){
                     currentBudget.currentAmount -= transaction.amount;

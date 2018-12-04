@@ -20,8 +20,59 @@ const sendTestSMS = function(req,res){
 };
 
 const receiveSMS = function(req, res) {
-  const budgetName = req.body.Body;
+  const messageBody = req.body.Body.trim().split(" ");
   const fromPhoneNumber = parseInt(req.body.From.substring(2));
+  console.log(messageBody);
+  if(messageBody.length == 1 && messageBody[0].toLowerCase() != "commands") {
+    handleNewTransaction(messageBody[0], fromPhoneNumber);
+  }
+  else if(messageBody.length == 1 && messageBody[0].toLowerCase() == "commands") {
+    handleSendCommands(fromPhoneNumber);
+  }
+  else if(messageBody.length == 3 && messageBody[0].toLowerCase() == "create") {
+    handleCreateNewBudget(messageBody, fromPhoneNumber);
+  }
+  else{
+    twilioClient.messages.create({
+      body: 'Not a valid command. Text "commands" to recieve a list of supported commands.',
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: '+1' + fromPhoneNumber
+    })
+    .then(message => {
+      console.log(message.sid);
+      res.json({ messageID: message.sid });
+    })
+    .done();
+    res.end();
+  }
+
+};
+
+const handleCreateNewBudget = function(messageBody, fromPhoneNumber) {
+  Users.findOne({phoneNumber: fromPhoneNumber}, function(err, user) {
+    const userID = user._id;
+    const newBudget = new BudgetCategories();
+    newBudget.userID = userID;
+    newBudget.budgetName = messageBody[1];
+    newBudget.budgetLimit = parseInt(messageBody[2]);
+    newBudget.currentAmount = 0;
+    newBudget.user = userID;
+    newBudget.save(function(err) {
+      twilioClient.messages.create({
+        body: 'Budget ' + newBudget.budgetName + ' created successfully with a limit of $' + newBudget.budgetLimit + ' dollars.',
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: '+1' + fromPhoneNumber
+      })
+      .then(message => {
+        console.log(message.sid);
+        res.json({ messageID: message.sid });
+      })
+      .done();
+    });
+  });
+};
+
+const handleNewTransaction = function(budgetName, fromPhoneNumber) {
   Users.findOne({phoneNumber: fromPhoneNumber}, function(err, user) {
     const userID = user._id;
     BudgetCategories.findOne({budgetName: budgetName, user: userID, isDeleted: false}, function(err, budget) {
@@ -38,6 +89,20 @@ const receiveSMS = function(req, res) {
       });
     });
   });
+};
+
+const handleSendCommands = function(fromPhoneNumber){
+  twilioClient.messages.create({
+    body: 'List of SMS commands freshBudgets supports.\n' + 
+          'create [budgetName] [budgetLimit]',
+    from: process.env.TWILIO_PHONE_NUMBER,
+    to: '+1' + fromPhoneNumber
+  })
+  .then(message => {
+    console.log(message.sid);
+    res.json({ messageID: message.sid });
+  })
+  .done();
 };
 
 const sendSMSVerificationCode = function(phoneNumber, verificationCode) {
