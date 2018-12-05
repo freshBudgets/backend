@@ -302,13 +302,13 @@ const getTransactionTime = function(req, res) {
 
 // saves transaction to a specific budget
 const saveTransaction = function(req, res) {
-    var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
+    console.log(userID);
     const transactionName = req.params.transactionName;
     const budgetId = req.params.budgetId;
 
     //Check if all needed information is sent in request
-    if(!transactionId || !budgetId) {
+    if(!transactionName || !budgetId) {
         res.json({
             success: false,
             message: 'Not enough information to update settings'
@@ -318,7 +318,7 @@ const saveTransaction = function(req, res) {
 
 
     var newSavedTransactions = new SavedTransactions();
-    newSavedTransactions.userID;
+    newSavedTransactions.userId = userID;
     newSavedTransactions.name = transactionName;
     newSavedTransactions.budgetId = budgetId;
 

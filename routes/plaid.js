@@ -69,33 +69,30 @@ const getPlaidTransactions = function(req, res) {
     BudgetCategory.findOne({user: userID, budgetName: 'Uncategorized Transactions', isDeleted: false}, function(err, category) {
         const uncategorizedBudgetID = category._id;
         PlaidInstitution.findOne({user: userID}, (err, account) => {
-            plaidClient.getTransactions(account.accessToken, oneDayAgo, today, (err, result) => {
+            plaidClient.getTransactions(account.accessToken, oneDayAgo, today, async (err, result) => {
                 let newTransactions = [];
                 for(var i = 0; i < result.transactions.length; i++) {
                     transaction = result.transactions[i];
-                    console.log(transaction);
+                    if(transaction.amount <= 0) {
+                        continue;
+                    }
                     const newTransaction = new Transactions();
                     newTransaction.amount = transaction.amount;
                     newTransaction.date = transaction.date;
                     newTransaction.name = transaction.name;
                     newTransaction.originalName = transaction.name;
-
-                    SavedTransactions.findOne({originalName: transaction.name}, function(err, savedTransaction) {
-                        if(err) {
-                            res.json({
-                                success: false,
-                                message: 'Error in plaid.js'
-                            });
-                        }
-                        else if(savedTransaction == null) {
-                            newTransaction.budget_id = uncategorizedBudgetID;
-                        }
-                        else {
-                            newTransaction.budget_id = savedTransaction.budgetId;
-                        }
-                    });
-
                     newTransaction.user_id = userID;
+
+                    
+                    const query = SavedTransactions.findOne({userId: userID, name: transaction.name});
+                    const queryResult = await query.exec();
+                    console.log("query res: " + queryResult);
+                    if(queryResult) {
+                        newTransaction.budget_id = queryResult.budgetId;
+                    }
+                    else {
+                        newTransaction.budget_id = uncategorizedBudgetID;
+                    }  
                     newTransactions.push(newTransaction);
                 }
                 Transactions.insertMany(newTransactions, function(err) {

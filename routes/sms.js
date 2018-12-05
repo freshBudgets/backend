@@ -146,13 +146,9 @@ const verifySMSVerificationCode = function(req, res) {
 };
 
 const sendTransactionSMSToUser = function(userID, budgetID) {
- console.log(userID);
- console.log(budgetID);
   var transaction;
   Transactions.find({user_id: userID, budget_id: budgetID}, function(err, transactions) {
     transaction = transactions[0];
-    console.log(transaction);
-    console.log(transactions);
    Users.findOne({_id: userID}, function(err, user){
     twilioClient.messages.create({
       body: 'Fresh Budgets received a new Transaction!\n' + 
