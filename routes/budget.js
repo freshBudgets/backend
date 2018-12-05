@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 const BudgetCategories = mongoose.model('BudgetCategory');
 const Transactions = mongoose.model('Transactions');
+const async = require('async');
 const moment = require('moment');
 const User = mongoose.model('Users');
 const transactionFunctions = require('./transactions');
@@ -146,10 +147,55 @@ var deleteCategory = function(req, res) {
   });
 };
 
+function getTransactionsForPastMonth(id, userID) {
+  let cutoff = moment().subtract(4,'Weeks');
+  console.log(cutoff);
+  console.log(new Date());
+  return new Promise((resolve, reject) => {
+    Transactions.find({user_id:  userID, budget_id: id, isDeleted: false, date: {"$gt": cutoff}}, function(err, transactions) {
+      //console.log(transactions);
+      if (err) {
+        reject(err);
+      } else {
+        resolve(transactions);
+      }
+    })
+  })
+}
+
+var monthlyReport = function(req, res) {
+  const userID = req.decoded._id;
+
+  BudgetCategories.find({user:userID, isDeleted: false}, async function(err, budgetCategories) {
+    if(err) {
+      res.json({ success: false, message: 'Could not get budgets for this user' });
+      return;
+    }
+
+    let bs = [];
+
+    for (let i = 0; i < budgetCategories.length; i++) {
+      const budget = budgetCategories[i]._doc;
+      const transactions = await getTransactionsForPastMonth(budget._id, userID) || [];
+      const b = { ...budget };
+      b.transactions = transactions;
+
+      let sum = 0;
+      for (let i = 0; i < transactions.length; i++) {
+        sum += transactions[i].amount;
+      }
+      b.sum = sum;
+      
+      bs.push(b);
+    }
+    res.json({success: true, budgets: bs});
+  });
+}
 module.exports = {
   createCategory,
   editCategory,
   deleteCategory,
   getAll,
   getOne,
+  monthlyReport
 };
