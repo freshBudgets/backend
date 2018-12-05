@@ -7,6 +7,7 @@ const Users        = mongoose.model('Users');
 const Transactions = mongoose.model('Transactions');
 const BudgetCategories = mongoose.model('BudgetCategory');
 const twilioClient = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
+const SavedTransactions = mongoose.model('SavedTransactions');
 
 // adds a transaction to the Transactions collection
 const addTransaction = function(req, res) {
@@ -27,6 +28,7 @@ const addTransaction = function(req, res) {
     newTransaction.amount = params.amount;
     newTransaction.date = params.date;
     newTransaction.name = params.name;
+    newTransaction.originalName = params.name;
     newTransaction.budget_id = params.budget_id;
     newTransaction.user_id = userID;
 
@@ -315,6 +317,47 @@ const getTransactionTime = function(req, res) {
     }
 }
 
+
+// saves transaction to a specific budget
+const saveTransaction = function(req, res) {
+    const userID = mongoose.Types.ObjectId(req.decoded._id);
+    console.log(userID);
+    const transactionName = req.params.transactionName;
+    const budgetId = req.params.budgetId;
+
+    //Check if all needed information is sent in request
+    if(!transactionName || !budgetId) {
+        res.json({
+            success: false,
+            message: 'Not enough information to update settings'
+        });
+        return;
+    }
+
+
+    var newSavedTransactions = new SavedTransactions();
+    newSavedTransactions.userId = userID;
+    newSavedTransactions.name = transactionName;
+    newSavedTransactions.budgetId = budgetId;
+
+    newSavedTransactions.save(function(err){
+        if (err){
+            res.json({
+                success: false,
+                message: 'Could not save transaction'
+            });
+        }
+        else{
+            res.json({
+                success: true,
+                message: 'Successfuly saved transaction'
+            })
+        }
+    });
+    
+    return;
+}
+
 module.exports = {
     addTransaction,
     removeTransaction,
@@ -322,6 +365,6 @@ module.exports = {
     getAll,
     getFromBudget,
     getTransactionTime,
-    testGetCurrentAmount,
+    saveTransaction
     getCurrentAmount
 };

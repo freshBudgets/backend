@@ -26,6 +26,7 @@ require('./models/plaidInstitutions');
 require('./models/budgetCategory');
 require('./models/users');
 require('./models/bills');
+require('./models/SavedTransactions')
 
 //Passport config
 require('./passport');

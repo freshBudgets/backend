@@ -42,7 +42,7 @@ router.post('/transactions/update', transactions.updateTransaction);
 router.get('/transactions/budget/:id', transactions.getFromBudget);
 router.get('/transactions/', transactions.getAll);
 router.get('/transactions/:time', transactions.getTransactionTime);
-router.post('/transactions/testGetAmount', transactions.testGetCurrentAmount);
+router.post('/transactions/save/:transactionName/:budgetId', transactions.saveTransaction);
 
 const bills = require('./bills');
 router.post('/bills/add', bills.addBill);

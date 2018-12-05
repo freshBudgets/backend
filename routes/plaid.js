@@ -14,6 +14,9 @@ const PLAID_PUBLIC_ID = process.env.PLAID_PUBLIC_ID;
 const PLAID_ENV = plaid.environments.development;
 const plaidClient = new plaid.Client(PLAID_CLIENT_ID, PLAID_DEV_SECRET, PLAID_PUBLIC_ID, PLAID_ENV);
 
+const SavedTransactions = mongoose.model('SavedTransactions');
+const transactions = require('./transactions');
+
 const linkPlaidAccount = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
     const accountIDs = req.body.accountIDs;
@@ -63,20 +66,33 @@ const getPlaidTransactions = function(req, res) {
     const today = moment().format('YYYY-MM-DD');
     const oneDayAgo = moment().subtract(1, 'days').format('YYYY-MM-DD');
     const userID = mongoose.Types.ObjectId(req.decoded._id);
-    BudgetCategory.findOne({user: userID, budgetName: 'Uncategorized Transactions'}, function(err, category) {
+    BudgetCategory.findOne({user: userID, budgetName: 'Uncategorized Transactions', isDeleted: false}, function(err, category) {
         const uncategorizedBudgetID = category._id;
         PlaidInstitution.findOne({user: userID}, (err, account) => {
-            plaidClient.getTransactions(account.accessToken, oneDayAgo, today, (err, result) => {
+            plaidClient.getTransactions(account.accessToken, oneDayAgo, today, async (err, result) => {
                 let newTransactions = [];
                 for(var i = 0; i < result.transactions.length; i++) {
                     transaction = result.transactions[i];
-                    console.log(transaction);
+                    if(transaction.amount <= 0) {
+                        continue;
+                    }
                     const newTransaction = new Transactions();
                     newTransaction.amount = transaction.amount;
                     newTransaction.date = transaction.date;
                     newTransaction.name = transaction.name;
-                    newTransaction.budget_id = uncategorizedBudgetID;
+                    newTransaction.originalName = transaction.name;
                     newTransaction.user_id = userID;
+
+                    
+                    const query = SavedTransactions.findOne({userId: userID, name: transaction.name});
+                    const queryResult = await query.exec();
+                    console.log("query res: " + queryResult);
+                    if(queryResult) {
+                        newTransaction.budget_id = queryResult.budgetId;
+                    }
+                    else {
+                        newTransaction.budget_id = uncategorizedBudgetID;
+                    }  
                     newTransactions.push(newTransaction);
                 }
                 Transactions.insertMany(newTransactions, function(err) {
@@ -130,4 +146,6 @@ module.exports = {
     handlePlaidTransaction,
     getPlaidTransactions
 };
+
+
 
