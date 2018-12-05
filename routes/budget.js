@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const BudgetCategories = mongoose.model('BudgetCategory');
 const Transactions = mongoose.model('Transactions');
 var moment = require('moment');
+var async = require('async');
 const User = mongoose.model('Users');
 
 const getAll = (req, res) => {
@@ -142,64 +143,48 @@ var deleteCategory = function(req, res) {
   });
 }
 
-var findWeeksInMonth = function(date){
-  let month = moment(date).subtract(1, 'M');
-  month = moment(month).startOf('month');
-  let days = 0;
-  while (moment(month).format("M") < moment(date).format("M")) {
-    month = moment(month).add(1, 'days');
-    days++;
-  }
-  return days/7.0;
+function getTransactionsForPastMonth(id, userID) {
+  let cutoff = moment().subtract(4,'Weeks');
+  console.log(cutoff);
+  console.log(new Date());
+  return new Promise((resolve, reject) => {
+    Transactions.find({user_id:  userID, budget_id: id, isDeleted: false, date: {"$gt": cutoff}}, function(err, transactions) {
+      //console.log(transactions);
+      if (err) {
+        reject(err);
+      } else {
+        resolve(transactions);
+      }
+    })
+  })
 }
 
 var monthlyReport = function(req, res) {
   const userID = req.decoded._id;
-  let total = 0
-  let budgetTotals = [];
-  BudgetCategories.find({user:userID, isDeleted: false}, function(err, budgetCategories) {
+
+  BudgetCategories.find({user:userID, isDeleted: false}, async function(err, budgetCategories) {
     if(err) {
-      res.json({
-        success: false,
-        message: 'Could not get budgets for this user'
-      });
+      res.json({ success: false, message: 'Could not get budgets for this user' });
+      return;
     }
-    else {
-      //console.log('budgetlist: ' + budgetCategories);
-      for(let i = 0; i < budgetCategories.length; i++){
-        Transactions.find({user_id:userID, budget_id:budgetCategories[i]._id, isDeleted: false}, function(err, transactions) {
-          if(err) {
-            res.json({
-              success: false,
-              message: 'Could not get transactions for this users budget'
-            });
-          }
-          else {
-            //console.log('transactions: ' + transactions);
-            for(let n = 0; n < transactions.length; n++){
-              //console.log('date 1: ' + moment(transactions[i].date).format("M"));
-              
-              let date = moment(new Date()).subtract(1,'months').format("M");
-              
-              //console.log("date 2: " + date);
-              if(moment(transactions[i].date).format("M") === date){
-                total = total + transactions[i].amount;
-                //console.log('in here: ' + total);
-              }
-            }
-            total = total/findWeeksInMonth(new Date());
-            budgetTotals.push({budget_id: budgetCategories[i]._id, average_weekly_spending: total});
-            //console.log('pushed: ' + budgetTotals[0].average_weekly_spending);
-            total = 0;
-          }
-        });
+
+    let bs = [];
+
+    for (let i = 0; i < budgetCategories.length; i++) {
+      const budget = budgetCategories[i]._doc;
+      const transactions = await getTransactionsForPastMonth(budget._id, userID) || [];
+      const b = { ...budget };
+      b.transactions = transactions;
+
+      let sum = 0;
+      for (let i = 0; i < transactions.length; i++) {
+        sum += transactions[i].amount;
       }
-      console.log('totals: ' + budgetTotals);
-      res.json({
-        success: true,
-        budgetList: budgetTotals
-      });
+      b.sum = sum;
+      
+      bs.push(b);
     }
+    res.json({success: true, budgets: bs});
   });
 }
 module.exports = {
