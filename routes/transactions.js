@@ -304,7 +304,7 @@ const getTransactionTime = function(req, res) {
 const saveTransaction = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
-    const transactionId = req.params.transactionId;
+    const transactionName = req.params.transactionName;
     const budgetId = req.params.budgetId;
 
     //Check if all needed information is sent in request
@@ -319,7 +319,7 @@ const saveTransaction = function(req, res) {
 
     var newSavedTransactions = new SavedTransactions();
     newSavedTransactions.userID;
-    newSavedTransactions.transactionId = transactionId;
+    newSavedTransactions.name = transactionName;
     newSavedTransactions.budgetId = budgetId;
 
     newSavedTransactions.save(function(err){
@@ -341,9 +341,9 @@ const saveTransaction = function(req, res) {
 }
 
 // loops through objects in savedtransaction collection for user, applies those transactions to budget
-const applySavedTransactions = function(err, res) {
-
-}
+/* const applySavedTransactions = function(err, res) { */
+     
+/* } */
 
 module.exports = {
     addTransaction,
