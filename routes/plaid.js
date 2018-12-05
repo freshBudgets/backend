@@ -66,7 +66,7 @@ const getPlaidTransactions = function(req, res) {
     const today = moment().format('YYYY-MM-DD');
     const oneDayAgo = moment().subtract(1, 'days').format('YYYY-MM-DD');
     const userID = mongoose.Types.ObjectId(req.decoded._id);
-    BudgetCategory.findOne({user: userID, budgetName: 'Uncategorized Transactions'}, function(err, category) {
+    BudgetCategory.findOne({user: userID, budgetName: 'Uncategorized Transactions', isDeleted: false}, function(err, category) {
         const uncategorizedBudgetID = category._id;
         PlaidInstitution.findOne({user: userID}, (err, account) => {
             plaidClient.getTransactions(account.accessToken, oneDayAgo, today, (err, result) => {
