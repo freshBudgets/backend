@@ -180,7 +180,7 @@ const getAll = function(req, res) {
         else {
             res.json({
                 success: false,
-                message: 'Could not find transactions for user'
+                message: 'Could not find bills for user'
             });
         }
     });
