@@ -352,6 +352,5 @@ module.exports = {
     getAll,
     getFromBudget,
     getTransactionTime,
-    saveTransaction,
-    applySavedTransactions
+    saveTransaction
 };
