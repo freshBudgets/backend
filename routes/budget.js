@@ -2,13 +2,14 @@
 const mongoose = require('mongoose');
 const BudgetCategories = mongoose.model('BudgetCategory');
 const Transactions = mongoose.model('Transactions');
-var moment = require('moment');
-var async = require('async');
+const async = require('async');
+const moment = require('moment');
 const User = mongoose.model('Users');
+const transactionFunctions = require('./transactions');
 
 const getAll = (req, res) => {
   const userID = req.decoded._id;
-  BudgetCategories.find({user:userID, isDeleted: false}, function(err, ret) {
+  BudgetCategories.find({user:userID, isDeleted: false}, async function(err, budgets) {
     if(err) {
       res.json({
         success: false,
@@ -16,9 +17,12 @@ const getAll = (req, res) => {
       });
     }
     else {
+      for(let i = 0; i < budgets.length; i++) {
+        budgets[i].currentAmount = await transactionFunctions.getCurrentAmount(budgets[i]._id, userID);
+      }
       res.json({
         success: true,
-        budgets: ret,
+        budgets: budgets,
         message: 'Got all budgets for this user'
       });
     }
@@ -28,8 +32,7 @@ const getAll = (req, res) => {
 const getOne = (req, res) => {
   const userID = req.decoded._id;
   const budgetID = req.params.id;
-  console.log('budgetID: ' + budgetID);
-  BudgetCategories.findOne({_id:budgetID, user:userID, isDeleted: false}, function(err, ret) {
+  BudgetCategories.findOne({_id:budgetID, user:userID, isDeleted: false}, async function(err, ret) {
     if(err) {
       res.json({
         success: false,
@@ -37,6 +40,7 @@ const getOne = (req, res) => {
       });
     }
     else {
+      ret.currentAmount = await transactionFunctions.getCurrentAmount(ret._id, userID);
       res.json({
         success: true,
         budgets: ret,
@@ -44,7 +48,7 @@ const getOne = (req, res) => {
       });
     }
   });
-}
+};
 
 var createCategory = function(req, res) {
   //Variables from the request body
@@ -141,7 +145,7 @@ var deleteCategory = function(req, res) {
       });
     }
   });
-}
+};
 
 function getTransactionsForPastMonth(id, userID) {
   let cutoff = moment().subtract(4,'Weeks');
