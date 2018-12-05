@@ -31,8 +31,7 @@ const getAll = (req, res) => {
 const getOne = (req, res) => {
   const userID = req.decoded._id;
   const budgetID = req.params.id;
-  console.log('budgetID: ' + budgetID);
-  BudgetCategories.findOne({_id:budgetID, user:userID, isDeleted: false}, function(err, ret) {
+  BudgetCategories.findOne({_id:budgetID, user:userID, isDeleted: false}, async function(err, ret) {
     if(err) {
       res.json({
         success: false,
@@ -40,6 +39,7 @@ const getOne = (req, res) => {
       });
     }
     else {
+      ret.currentAmount = await transactionFunctions.getCurrentAmount(ret._id, userID);
       res.json({
         success: true,
         budgets: ret,
@@ -47,7 +47,7 @@ const getOne = (req, res) => {
       });
     }
   });
-}
+};
 
 var createCategory = function(req, res) {
   //Variables from the request body
