@@ -10,7 +10,7 @@ const async      = require('async');
 const addBill = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
-    
+
     // check if all needed information is sent in request
     if(!params.dayOfMonthDue || !params.name) {
         res.json({
@@ -29,7 +29,7 @@ const addBill = function(req, res) {
         return;
     }
 
-    var newBill = new Bills(); 
+    var newBill = new Bills();
     newBill.name = params.name;
     newBill.dayOfMonthDue = params.dayOfMonthDue;
     newBill.userId = userID;
@@ -51,7 +51,7 @@ const addBill = function(req, res) {
 }
 
 // updates a bill
-// TESTED 
+// TESTED
 const updateBill = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
@@ -82,7 +82,7 @@ const updateBill = function(req, res) {
                 success: false,
                 message: 'Error finding bill'
             });
-        }  
+        }
         else if(bill == null) {
             res.json({
                 success: false,
@@ -132,7 +132,7 @@ const removeBill = function(req, res) {
                 success: false,
                 message: 'Error finding bill'
             });
-        }  
+        }
         else if(bill == null) {
             res.json({
                 success: false,
@@ -147,7 +147,7 @@ const removeBill = function(req, res) {
         }
         else {
             bill.isDeleted = true;
-    
+
             bill.save(function(err) {
                 if(err) {
                     res.json({
@@ -166,15 +166,15 @@ const removeBill = function(req, res) {
     });
 }
 
-// returns all bills    
+// returns all bills
 const getAll = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
-    
+
     Bills.find({userId: userID, isDeleted: false}, function(err, bills) {
         if(bills.length > 0) {
             res.json({
                 success: true,
-                transactions: bills
+                bills: bills
             });
         }
         else {
@@ -199,10 +199,10 @@ const checkBills = function(req, res) {
 
     var daysInMonth;
     // sets the daysInMonth variable according to the current month
-    if(currentMonth == 1 
-        || currentMonth == 3 
-        || currentMonth == 5 
-        || currentMonth == 7 
+    if(currentMonth == 1
+        || currentMonth == 3
+        || currentMonth == 5
+        || currentMonth == 7
         || currentMonth == 8
         || currentMonth == 10
         || currentMonth == 12)
@@ -234,7 +234,7 @@ const checkBills = function(req, res) {
     });
 
     res.json({});
-    
+
     return;
 }
 
