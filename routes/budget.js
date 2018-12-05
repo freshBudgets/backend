@@ -1,6 +1,8 @@
 //for categories, not sure about this
 const mongoose = require('mongoose');
 const BudgetCategories = mongoose.model('BudgetCategory');
+const Transactions = mongoose.model('Transactions');
+const moment = require('moment');
 const User = mongoose.model('Users');
 
 const getAll = (req, res) => {
@@ -140,10 +142,45 @@ var deleteCategory = function(req, res) {
   });
 }
 
+const setBudget = function(req, res) {
+  const userID = req.decoded._id;
+  const budgetID = req.params.id;
+  const cutoff = moment().format("W, YYYY");
+  BudgetCategories.findOne({_id: budgetID, user: userID, isDeleted: false}, function(err, budget){
+      if(err){
+          console.log('ERROR');
+      }
+      Transactions.find({budget_id: budget._id, user_id: userID, isDeleted: false}, function(err, transaction_list){
+          budget.currentAmount = 0;
+          for(var i = 0; i < transaction_list.length; i++){
+              const transactionDate = moment(transaction_list[i].date).format("W, YYYY");;
+              //console.log('transaction date: ' + transactionDate);
+              //console.log('transaction cutoff: ' + cutoff);
+              if(transactionDate === cutoff){
+                  budget.currentAmount = budget.currentAmount + transaction_list[i].amount;
+              }
+          }
+          if(err){
+              res.json({
+                  success: false,
+                  message: 'Could not find transactions for user in this time scale'
+              });
+          }
+          else{
+              res.json({
+                  success: true,
+                  updatedBudget: budget
+              });
+          }
+      });
+  });
+}
+
 module.exports = {
   createCategory,
   editCategory,
   deleteCategory,
   getAll,
-  getOne
+  getOne,
+  setBudget
 };
