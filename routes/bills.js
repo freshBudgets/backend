@@ -166,6 +166,26 @@ const removeBill = function(req, res) {
     });
 }
 
+// returns all bills    
+const getAll = function(req, res) {
+    const userID = mongoose.Types.ObjectId(req.decoded._id);
+    
+    Bills.find({userId: userID, isDeleted: false}, function(err, bills) {
+        if(bills.length > 0) {
+            res.json({
+                success: true,
+                transactions: bills
+            });
+        }
+        else {
+            res.json({
+                success: false,
+                message: 'Could not find transactions for user'
+            });
+        }
+    });
+}
+
 // checks if there are any bills coming up. If there are, email user
 // email functionality currently not implemented
 // TODO implement email functionality
@@ -223,5 +243,6 @@ module.exports = {
     addBill,
     updateBill,
     removeBill,
-    checkBills
+    checkBills,
+    getAll
 };

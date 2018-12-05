@@ -49,6 +49,7 @@ router.post('/bills/add', bills.addBill);
 router.post('/bills/update/:id', bills.updateBill);
 router.post('/bills/remove/:id', bills.removeBill);
 router.post('/bills/check', bills.checkBills);
+router.post('/bills/all', bills.getAll);
 
 const accounts = require('./accounts');
 router.get('/accounts', accounts.getAll);
