@@ -300,9 +300,12 @@ const getTransactionTime = function(req, res) {
 
 
 const saveTransaction = function(req, res) {
-    res.json({hello: "goodbye"});
-}
+    var params = req.body;
+    const userID = mongoose.Types.ObjectId(req.decoded._id);
+    const transactionId = req.params.transactionId;
+    const budgetId = req.params.budgetId;
 
+}
 
 module.exports = {
     addTransaction,
