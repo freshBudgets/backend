@@ -299,12 +299,44 @@ const getTransactionTime = function(req, res) {
 }
 
 
+// saves transaction to a specific budget
 const saveTransaction = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
     const transactionId = req.params.transactionId;
     const budgetId = req.params.budgetId;
 
+    //Check if all needed information is sent in request
+    if(!transactionId || !budgetId) {
+        res.json({
+            success: false,
+            message: 'Not enough information to update settings'
+        });
+        return;
+    }
+
+
+    var newSavedTransactions = new SavedTransactions();
+    newSavedTransactions.userID;
+    newSavedTransactions.transactionId = transactionId;
+    newSavedTransactions.budgetId = budgetId;
+
+    newSavedTransactions.save(function(err){
+        if (err){
+            res.json({
+                success: false,
+                message: 'Could not save transaction'
+            });
+        }
+        else{
+            res.json({
+                success: true,
+                message: 'Successfuly saved transaction'
+            })
+        }
+    });
+    
+    return;
 }
 
 module.exports = {
