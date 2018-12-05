@@ -27,6 +27,7 @@ const addTransaction = function(req, res) {
     newTransaction.amount = params.amount;
     newTransaction.date = params.date;
     newTransaction.name = params.name;
+    newTransaction.originalName = params.name;
     newTransaction.budget_id = params.budget_id;
     newTransaction.user_id = userID;
 
@@ -52,7 +53,7 @@ const updateTransaction = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
     var fromPhoneNumber;
-    Users.findOne({userID: userID}, function(err, user){
+    Users.findOne({_id: userID}, function(err, user){
         fromPhoneNumber = user.phoneNumber;
     });
 
@@ -339,6 +340,11 @@ const saveTransaction = function(req, res) {
     return;
 }
 
+// loops through objects in savedtransaction collection for user, applies those transactions to budget
+const applySavedTransactions = function(err, res) {
+
+}
+
 module.exports = {
     addTransaction,
     removeTransaction,
@@ -346,5 +352,6 @@ module.exports = {
     getAll,
     getFromBudget,
     getTransactionTime,
-    saveTransaction
+    saveTransaction,
+    applySavedTransactions
 };

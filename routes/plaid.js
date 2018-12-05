@@ -14,6 +14,9 @@ const PLAID_PUBLIC_ID = process.env.PLAID_PUBLIC_ID;
 const PLAID_ENV = plaid.environments.development;
 const plaidClient = new plaid.Client(PLAID_CLIENT_ID, PLAID_DEV_SECRET, PLAID_PUBLIC_ID, PLAID_ENV);
 
+const SavedTransactions = mongoose.model('SavedTransactions');
+const transactions = require('./transactions');
+
 const linkPlaidAccount = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
     const accountIDs = req.body.accountIDs;
@@ -75,7 +78,23 @@ const getPlaidTransactions = function(req, res) {
                     newTransaction.amount = transaction.amount;
                     newTransaction.date = transaction.date;
                     newTransaction.name = transaction.name;
-                    newTransaction.budget_id = uncategorizedBudgetID;
+                    newTransaction.originalName = transaction.name;
+
+                    SavedTransactions.findOne({originalName: transaction.name}, function(err, savedTransaction) {
+                        if(err) {
+                            res.json({
+                                success: false,
+                                message: 'Error in plaid.js'
+                            });
+                        }
+                        else if(savedTransaction == null) {
+                            newTransaction.budget_id = uncategorizedBudgetID;
+                        }
+                        else {
+                            newTransaction.budget_id = savedTransaction.budgetId;
+                        }
+                    });
+
                     newTransaction.user_id = userID;
                     newTransactions.push(newTransaction);
                 }
@@ -130,4 +149,6 @@ module.exports = {
     handlePlaidTransaction,
     getPlaidTransactions
 };
+
+
 
