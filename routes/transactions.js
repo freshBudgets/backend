@@ -2,6 +2,7 @@ const mongoose     = require('mongoose');
 const passport     = require('passport');
 const crypto       = require('crypto');
 const jwt          = require('jsonwebtoken');
+const moment       = require('moment');
 const Users        = mongoose.model('Users');
 const Transactions = mongoose.model('Transactions');
 const BudgetCategories = mongoose.model('BudgetCategory');
@@ -198,17 +199,44 @@ const getAll = function(req, res) {
             });
         }
     });
+};
+
+const getWeeklyTransactions = function(budgetId, userID) {
+    return new Promise((resolve, reject) => {
+        const thisSunday = moment().day(0).format('YYYY-MM-DD');
+        const nextSunday = moment().day(7).format('YYYY-MM-DD');
+        Transactions.find({budget_id: budgetId, user_id: userID, isDeleted: false, date: {$gte: thisSunday, $lte: nextSunday}}, function(err, transactions) {
+            if (err) reject(err);    
+            return resolve(transactions);
+        });
+    });
+};
+
+async function getCurrentAmount(budgetID, userID) {
+    return new Promise((resolve, reject) => {
+        getWeeklyTransactions(budgetID, userID).then((transactions) => {
+            let total = 0;
+            for (let i = 0; i < transactions.length; i++) {
+                total += transactions[i].amount;
+            }
+            resolve(total);
+        });
+    });
 }
 
+async function testGetCurrentAmount(req, res) {
+    const userID = req.decoded._id;
+    const budgetID = req.body.budgetID;
+    const currAmt = await getCurrentAmount(budgetID, userID);
+    res.json({currAmt});
+}
 
 // returns all transactions from a specific budget for current user
-const getFromBudget = function(req, res) {
-    const params = req.body;
+async function getFromBudget(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
-    const budgetId = req.params.id;
-
+    const budgetID = req.params.id;
     //Check if all needed information is sent in request
-    if(!budgetId) {
+    if(!budgetID) {
         res.json({
             success: false,
             message: 'Not enough information to update settings'
@@ -216,19 +244,10 @@ const getFromBudget = function(req, res) {
         return;
     }
     
-    Transactions.find({user_id: userID, budget_id: budgetId, isDeleted: false}, function(err, transactions) {
-        if(transactions.length > 0) {
-            res.json({
-                success: true,
-                transactions: transactions
-            });
-        }
-        else {
-            res.json({
-                success: false,
-                message: 'Could not find transactions for user'
-            });
-        }
+    const transactions = await getWeeklyTransactions(budgetID, userID);
+    res.json({
+        success: true,
+        transactions: transactions
     });
 };
 
@@ -302,5 +321,7 @@ module.exports = {
     updateTransaction,
     getAll,
     getFromBudget,
-    getTransactionTime
+    getTransactionTime,
+    testGetCurrentAmount,
+    getCurrentAmount
 };
