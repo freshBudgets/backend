@@ -171,16 +171,16 @@ const getAll = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
     Bills.find({userId: userID, isDeleted: false}, function(err, bills) {
-        if(bills.length > 0) {
+        if(err) {
             res.json({
-                success: true,
-                bills: bills
+                success: false,
+                message: "Error finding bills"
             });
         }
         else {
             res.json({
-                success: false,
-                message: 'Could not find bills for user'
+                success: true,
+                bills: bills
             });
         }
     });
