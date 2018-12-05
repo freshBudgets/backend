@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Users = mongoose.model('Users');
 const Transactions = mongoose.model('Transactions');
 const BudgetCategories = mongoose.model('BudgetCategory');
+const transactionFunctions = require('./transactions');
 
 const sendTestSMS = function(req,res){
   console.log(req.body);
@@ -78,9 +79,9 @@ const handleNewTransaction = function(budgetName, fromPhoneNumber) {
     BudgetCategories.findOne({budgetName: budgetName, user: userID, isDeleted: false}, function(err, budget) {
       Transactions.findOne({_id: user.lastTextedTransaction}, function(err, transaction) {
         transaction.budget_id = budget._id;
-        budget.currentAmount += transaction.amount;
         transaction.save(function(err) {
           budget.save(function(err) {
+            transactionFunctions.checkBudgetWarnings(budget._id, userID);
             BudgetCategories.findOne({budgetName: 'Uncategorized Transactions', user: userID}, function(err, uncategorizedBudget) {
               sendTransactionSMSToUser(userID, uncategorizedBudget._id);
             });

@@ -29,7 +29,7 @@ const addTransaction = function(req, res) {
     newTransaction.name = params.name;
     newTransaction.budget_id = params.budget_id;
     newTransaction.user_id = userID;
-
+    checkBudgetWarnings(params.budget_id, userID);
     newTransaction.save(function(err){
         if (err){
             res.json({
@@ -51,10 +51,6 @@ const updateTransaction = function(req, res) {
     var params = req.body;
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
-    var fromPhoneNumber;
-    Users.findOne({_id: userID}, function(err, user) {
-        fromPhoneNumber = user.phoneNumber;
-    });
     //Check if all needed information is sent in request
     if(!params.transaction_id || !params.amount || !params.date || !params.name ) {
         res.json({
@@ -88,42 +84,9 @@ const updateTransaction = function(req, res) {
             transaction.date = params.date;
             transaction.name = params.name;
             if (params.currentBudget != params.newBudget) {
-                BudgetCategories.findOne({_id: params.newBudget}, function(err, newBudget){
-                    newBudget.currentAmount += transaction.amount;
-                    newBudget.save(function(err) {
-                        if(newBudget.currentAmount > newBudget.budgetLimit) {
-                            twilioClient.messages.create({
-                                body: 'Your budget: ' + newBudget.budgetName + 'has gone overbudget.',
-                                from: process.env.TWILIO_PHONE_NUMBER,
-                                to: '+1' + fromPhoneNumber
-                              })
-                              .then(message => {
-                                console.log(message.sid);
-                                res.json({ messageID: message.sid });
-                              })
-                              .done();
-                        }
-                        else if((newBudget.currentAmount*1.0)/newBudget.budgetLimit >= 0.75) {
-                            twilioClient.messages.create({
-                                body: 'Your budget: ' + newBudget.budgetName + ', is 75% or more to its limit. Watch your spending!',
-                                from: process.env.TWILIO_PHONE_NUMBER,
-                                to: '+1' + fromPhoneNumber
-                              })
-                              .then(message => {
-                                console.log(message.sid);
-                                res.json({ messageID: message.sid });
-                              })
-                              .done();
-                        }
-                    });
-                });
-                BudgetCategories.findOne({_id: params.currentBudget}, function(err, currentBudget){
-                    currentBudget.currentAmount -= transaction.amount;
-                    currentBudget.save();
-                });
+                checkBudgetWarnings(params.newBudget, userID);
                 transaction.budget_id = params.newBudget;
             }
-
             transaction.save(function(err) {
                 if(err) {
                     res.json({
@@ -251,6 +214,43 @@ async function getFromBudget(req, res) {
     });
 };
 
+async function checkBudgetWarnings(budgetID, userID) {
+    console.log('hit');
+    console.log(budgetID);
+    console.log(userID);
+    const currentAmount = await getCurrentAmount(budgetID, userID);
+    console.log(currentAmount);
+    Users.findOne({_id: userID}, function(err, user) {
+        const phoneNumber = user.phoneNumber;
+        BudgetCategories.findOne({_id: budgetID}, function(err, budget) {
+            const budgetLimit = budget.budgetLimit;
+            console.log(budgetLimit);
+            if(currentAmount > budgetLimit) {
+                twilioClient.messages.create({
+                    body: 'Your budget: ' + budget.budgetName + ', has gone overbudget.',
+                    from: process.env.TWILIO_PHONE_NUMBER,
+                    to: '+1' + phoneNumber
+                  })
+                  .then(message => {
+                    console.log(message.sid);
+                  })
+                  .done();
+            }
+            else if((currentAmount * 1.0) / budgetLimit >= 0.75) {
+                twilioClient.messages.create({
+                    body: 'Your budget: ' + budget.budgetName + ', is 75% or more to its limit. Watch your spending!',
+                    from: process.env.TWILIO_PHONE_NUMBER,
+                    to: '+1' + phoneNumber
+                  })
+                  .then(message => {
+                    console.log(message.sid);
+                  })
+                  .done();
+            }
+        });
+    });
+}
+
 const getTransactionTime = function(req, res) {
     const cutoff = new Date();
     //const cutoff = '2017-10-29 00:00:00.000+00:00';
@@ -323,5 +323,6 @@ module.exports = {
     getFromBudget,
     getTransactionTime,
     testGetCurrentAmount,
-    getCurrentAmount
+    getCurrentAmount,
+    checkBudgetWarnings
 };
