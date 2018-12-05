@@ -358,11 +358,6 @@ const saveTransaction = function(req, res) {
     return;
 }
 
-// loops through objects in savedtransaction collection for user, applies those transactions to budget
-/* const applySavedTransactions = function(err, res) { */
-     
-/* } */
-
 module.exports = {
     addTransaction,
     removeTransaction,
