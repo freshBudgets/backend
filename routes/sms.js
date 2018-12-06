@@ -54,6 +54,7 @@ const receiveSMS = function(req, res) {
     .done();
     res.end();
   }
+  res.end();
 };
 
 const handleGeneralBudgetSummary = function(messageBody, fromPhoneNumber) {
@@ -72,7 +73,6 @@ const handleGeneralBudgetSummary = function(messageBody, fromPhoneNumber) {
     })
     .then(message => {
       console.log(message.sid);
-      res.json({ messageID: message.sid });
     })
     .done());
   });
@@ -97,7 +97,6 @@ const handleSpecificBudgetSummary = function(messageBody, fromPhoneNumber) {
     })
     .then(message => {
       console.log(message.sid);
-      res.json({ messageID: message.sid });
     })
     .done());
   });
@@ -107,7 +106,7 @@ const handleDeleteBudget = function(messageBody, fromPhoneNumber) {
   Users.findOne({phoneNumber: fromPhoneNumber}, function(err, user) {
     const userID = user._id;
     const budgetName = messageBody[2];
-    BudgetCategories.findOne({budgetName: budgetName, isDeleted: false}, function(err, budget) {
+    BudgetCategories.findOne({budgetName: budgetName, isDeleted: false, userID: userID}, function(err, budget) {
       if (!budget) {
         twilioClient.messages.create({
           body: 'Budget ' + budget.budgetName + ' could not be found. Nothing was deleted.',
@@ -116,7 +115,6 @@ const handleDeleteBudget = function(messageBody, fromPhoneNumber) {
         })
         .then(message => {
           console.log(message.sid);
-          res.json({ messageID: message.sid });
         })
         .done();
       }
@@ -129,9 +127,8 @@ const handleDeleteBudget = function(messageBody, fromPhoneNumber) {
         })
         .then(message => {
           console.log(message.sid);
-          res.json({ messageID: message.sid });
         })
-        .done())
+        .done());
       }
     });
   });
@@ -154,7 +151,6 @@ const handleCreateNewBudget = function(messageBody, fromPhoneNumber) {
       })
       .then(message => {
         console.log(message.sid);
-        res.json({ messageID: message.sid });
       })
       .done();
     });
