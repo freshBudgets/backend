@@ -66,15 +66,16 @@ const handleGeneralBudgetSummary = function(messageBody, fromPhoneNumber) {
          const budget = budgets[i];
          summaryString.concat("Budget: " + budget.budgetName + " - Spent: $" + budget.currentAmount + "Limit: $" + budget.budgetLimit +"\n");
        }
-    }).then(twilioClient.messages.create({
-      body: summaryString,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: '+1' + fromPhoneNumber
-    })
-    .then(message => {
-      console.log(message.sid);
-    })
-    .done());
+       twilioClient.messages.create({
+        body: summaryString,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: '+1' + fromPhoneNumber
+      })
+      .then(message => {
+        console.log(message.sid);
+      })
+      .done();
+    });
   });
 };
 
@@ -90,15 +91,16 @@ const handleSpecificBudgetSummary = function(messageBody, fromPhoneNumber) {
       else {
         summaryString = "Budget: " + budgetName + " not found."; 
       }
-    }).then(twilioClient.messages.create({
-      body: summaryString,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: '+1' + fromPhoneNumber
-    })
-    .then(message => {
-      console.log(message.sid);
-    })
-    .done());
+      twilioClient.messages.create({
+        body: summaryString,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: '+1' + fromPhoneNumber
+      })
+      .then(message => {
+        console.log(message.sid);
+      })
+      .done();
+    });
   });
 };
 
