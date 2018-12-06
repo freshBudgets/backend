@@ -88,7 +88,7 @@ const handleSpecificBudgetSummary = function(messageBody, fromPhoneNumber) {
         summaryString = "Budget: " + budget.budgetName + " - Spent: $" + budget.currentAmount + "Limit: $" + budget.budgetLimit;
       }
       else {
-        summaryString = "Budget: " + budgetName + " not found." 
+        summaryString = "Budget: " + budgetName + " not found."; 
       }
     }).then(twilioClient.messages.create({
       body: summaryString,
@@ -109,7 +109,7 @@ const handleDeleteBudget = function(messageBody, fromPhoneNumber) {
     BudgetCategories.findOne({budgetName: budgetName, isDeleted: false, userID: userID}, function(err, budget) {
       if (!budget) {
         twilioClient.messages.create({
-          body: 'Budget ' + budget.budgetName + ' could not be found. Nothing was deleted.',
+          body: 'Budget ' + budgetName + ' could not be found. Nothing was deleted.',
           from: process.env.TWILIO_PHONE_NUMBER,
           to: '+1' + fromPhoneNumber
         })
