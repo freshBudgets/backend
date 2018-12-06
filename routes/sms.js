@@ -60,12 +60,13 @@ const receiveSMS = function(req, res) {
 const handleGeneralBudgetSummary = function(messageBody, fromPhoneNumber) {
   Users.findOne({phoneNumber: fromPhoneNumber}, function(err, user) {
     const userID = user._id;
-    let summaryString = "";
     BudgetCategories.find({userID: userID, isDeleted: false}, function(err, budgets) {
-       for(let i = 0; i < budgets.length; i++) {
+      let summaryString = "";
+      for(let i = 0; i < budgets.length; i++) {
          const budget = budgets[i];
          summaryString.concat("Budget: " + budget.budgetName + " - Spent: $" + budget.currentAmount + "Limit: $" + budget.budgetLimit +"\n");
        }
+       console.log(summaryString);
        twilioClient.messages.create({
         body: summaryString,
         from: process.env.TWILIO_PHONE_NUMBER,
@@ -81,16 +82,17 @@ const handleGeneralBudgetSummary = function(messageBody, fromPhoneNumber) {
 
 const handleSpecificBudgetSummary = function(messageBody, fromPhoneNumber) {
   const budgetName = messageBody[2];
-  let summaryString = "";
   Users.findOne({phoneNumber: fromPhoneNumber}, function(err, user) {
     const userID = user._id;
     BudgetCategories.find({userID: userID, budgetName: budgetName, isDeleted: false}, function(err, budget) {
+      let summaryString = "";
       if(budget) {
         summaryString = "Budget: " + budget.budgetName + " - Spent: $" + budget.currentAmount + "Limit: $" + budget.budgetLimit;
       }
       else {
         summaryString = "Budget: " + budgetName + " not found."; 
       }
+      console.log(summaryString);
       twilioClient.messages.create({
         body: summaryString,
         from: process.env.TWILIO_PHONE_NUMBER,
