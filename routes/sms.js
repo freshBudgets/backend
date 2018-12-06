@@ -64,7 +64,7 @@ const handleGeneralBudgetSummary = function(messageBody, fromPhoneNumber) {
       let summaryString = "";
       for(let i = 0; i < budgets.length; i++) {
          const budget = budgets[i];
-         summaryString = summaryString.concat("Budget: " + budget.budgetName + " - Spent: $" + budget.currentAmount + "Limit: $" + budget.budgetLimit +"\n");
+         summaryString = summaryString.concat("Budget: " + budget.budgetName + " - Spent: $" + budget.currentAmount + " Limit: $" + budget.budgetLimit +"\n");
        }
        console.log("string: "+summaryString);
        twilioClient.messages.create({
@@ -84,10 +84,10 @@ const handleSpecificBudgetSummary = function(messageBody, fromPhoneNumber) {
   const budgetName = messageBody[2];
   Users.findOne({phoneNumber: fromPhoneNumber}, function(err, user) {
     const userID = user._id;
-    BudgetCategories.find({userID: userID, budgetName: budgetName, isDeleted: false}, function(err, budget) {
+    BudgetCategories.findOne({userID: userID, budgetName: budgetName, isDeleted: false}, function(err, budget) {
       let summaryString = "";
       if(budget) {
-        summaryString = "Budget: " + budget.budgetName + " - Spent: $" + budget.currentAmount + "Limit: $" + budget.budgetLimit;
+        summaryString = "Budget: " + budget.budgetName + " - Spent: $" + budget.currentAmount + " Limit: $" + budget.budgetLimit;
       }
       else {
         summaryString = "Budget: " + budgetName + " not found."; 
