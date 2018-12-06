@@ -35,6 +35,12 @@ const receiveSMS = function(req, res) {
   else if(messageBody.length == 3 && messageBody[0].toLowerCase() == "delete" && messageBody[1].toLowerCase() == "budget") {
     handleDeleteBudget(messageBody, fromPhoneNumber);
   }
+  else if(messageBody.length == 2 && messageBody[0].toLowerCase() == "budget" && messageBody[1].toLowerCase() == "summary") {
+    handleGeneralBudgetSummary(messageBody, fromPhoneNumber);
+  }
+  else if(messageBody.length == 3 && messageBody[0].toLowerCase() == "budget" && messageBody[1].toLowerCase() == "summary") {
+    handleSpecificBudgetSummary(messageBody, fromPhoneNumber);
+  }
   else{
     twilioClient.messages.create({
       body: 'Not a valid command. Text "commands" to recieve a list of supported commands.',
@@ -48,14 +54,60 @@ const receiveSMS = function(req, res) {
     .done();
     res.end();
   }
+};
 
+const handleGeneralBudgetSummary = function(messageBody, fromPhoneNumber) {
+  Users.findOne({phoneNumber: fromPhoneNumber}, function(err, user) {
+    const userID = user._id;
+    let summaryString = "";
+    BudgetCategories.find({userID: userID, isDeleted: false}, function(err, budgets) {
+       for(let i = 0; i < budgets.length; i++) {
+         const budget = budgets[i];
+         summaryString.concat("Budget: " + budget.budgetName + " - Spent: $" + budget.currentAmount + "Limit: $" + budget.budgetLimit +"\n");
+       }
+    }).then(twilioClient.messages.create({
+      body: summaryString,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: '+1' + fromPhoneNumber
+    })
+    .then(message => {
+      console.log(message.sid);
+      res.json({ messageID: message.sid });
+    })
+    .done());
+  });
+};
+
+const handleSpecificBudgetSummary = function(messageBody, fromPhoneNumber) {
+  const budgetName = messageBody[2];
+  let summaryString = "";
+  Users.findOne({phoneNumber: fromPhoneNumber}, function(err, user) {
+    const userID = user._id;
+    BudgetCategories.find({userID: userID, budgetName: budgetName, isDeleted: false}, function(err, budget) {
+      if(budget) {
+        summaryString = "Budget: " + budget.budgetName + " - Spent: $" + budget.currentAmount + "Limit: $" + budget.budgetLimit;
+      }
+      else {
+        summaryString = "Budget: " + budgetName + " not found." 
+      }
+    }).then(twilioClient.messages.create({
+      body: summaryString,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: '+1' + fromPhoneNumber
+    })
+    .then(message => {
+      console.log(message.sid);
+      res.json({ messageID: message.sid });
+    })
+    .done());
+  });
 };
 
 const handleDeleteBudget = function(messageBody, fromPhoneNumber) {
   Users.findOne({phoneNumber: fromPhoneNumber}, function(err, user) {
     const userID = user._id;
     const budgetName = messageBody[2];
-    BudgetCategories.findOne({budgetName: budgetName}, function(err, budget) {
+    BudgetCategories.findOne({budgetName: budgetName, isDeleted: false}, function(err, budget) {
       if (!budget) {
         twilioClient.messages.create({
           body: 'Budget ' + budget.budgetName + ' could not be found. Nothing was deleted.',
@@ -83,7 +135,7 @@ const handleDeleteBudget = function(messageBody, fromPhoneNumber) {
       }
     });
   });
-});
+};
 
 const handleCreateNewBudget = function(messageBody, fromPhoneNumber) {
   Users.findOne({phoneNumber: fromPhoneNumber}, function(err, user) {
