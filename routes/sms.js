@@ -184,7 +184,9 @@ const handleSendCommands = function(fromPhoneNumber){
   twilioClient.messages.create({
     body: 'List of SMS commands freshBudgets supports.\n' + 
           'create budget [budgetName] [budgetLimit]\n' +
-          'delete budget [budgetName]',
+          'delete budget [budgetName]\n' +
+          'budget summary\n' +
+          'budget summary [budgetName]',
     from: process.env.TWILIO_PHONE_NUMBER,
     to: '+1' + fromPhoneNumber
   })
