@@ -66,7 +66,7 @@ const handleGeneralBudgetSummary = function(messageBody, fromPhoneNumber) {
          const budget = budgets[i];
          summaryString.concat("Budget: " + budget.budgetName + " - Spent: $" + budget.currentAmount + "Limit: $" + budget.budgetLimit +"\n");
        }
-       console.log(summaryString);
+       console.log("string: "+summaryString);
        twilioClient.messages.create({
         body: summaryString,
         from: process.env.TWILIO_PHONE_NUMBER,
