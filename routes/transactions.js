@@ -1,12 +1,9 @@
 const mongoose     = require('mongoose');
-const passport     = require('passport');
-const crypto       = require('crypto');
-const jwt          = require('jsonwebtoken');
 const moment       = require('moment');
+const sms          = require('./sms');
 const Users        = mongoose.model('Users');
 const Transactions = mongoose.model('Transactions');
 const BudgetCategories = mongoose.model('BudgetCategory');
-const twilioClient = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 const SavedTransactions = mongoose.model('SavedTransactions');
 
 // adds a transaction to the Transactions collection
@@ -14,7 +11,12 @@ const addTransaction = function(req, res) {
     var params = req.body;
     req.body.date = new Date();
     const userID = mongoose.Types.ObjectId(req.decoded._id);
-
+    let phoneNumber;
+    let smsNotifications;
+    Users.findOne({_id: userID}, function(err, user) {
+        phoneNumber = user.phoneNumber;
+        smsNotifications = user.smsNotifications;
+    });
     //Check if all needed information is sent in request
     if(!params.amount || !params.date || !params.name || !params.budget_id ) {
         res.json({
@@ -31,7 +33,13 @@ const addTransaction = function(req, res) {
     newTransaction.originalName = params.name;
     newTransaction.budget_id = params.budget_id;
     newTransaction.user_id = userID;
-
+    if(smsNotifications) {
+        BudgetCategories.findOne({userID: userID, _id: params.budget_id, isDeleted: false}, async function(err, budget) {
+            const budgetAmount = await getCurrentAmount(budget._id, userID);
+            sms.sendBudgetWarningSMS(phoneNumber, budget.budgetName, budget.budgetLimt, budgetAmount);
+        });
+    }
+    
     newTransaction.save(function(err){
         if (err){
             res.json({
@@ -54,8 +62,10 @@ const updateTransaction = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
 
     var fromPhoneNumber;
+    var smsNotifications;
     Users.findOne({_id: userID}, function(err, user) {
         fromPhoneNumber = user.phoneNumber;
+        smsNotifications = user.smsNotifications;
     });
     //Check if all needed information is sent in request
     if(!params.transaction_id || !params.amount || !params.date || !params.name ) {
@@ -90,40 +100,14 @@ const updateTransaction = function(req, res) {
             transaction.date = params.date;
             transaction.name = params.name;
             if (params.currentBudget != params.newBudget) {
-                BudgetCategories.findOne({_id: params.newBudget}, function(err, newBudget){
-                    newBudget.currentAmount += transaction.amount;
-                    newBudget.save(function(err) {
-                        if(newBudget.currentAmount > newBudget.budgetLimit) {
-                            twilioClient.messages.create({
-                                body: 'Your budget: ' + newBudget.budgetName + 'has gone overbudget.',
-                                from: process.env.TWILIO_PHONE_NUMBER,
-                                to: '+1' + fromPhoneNumber
-                              })
-                              .then(message => {
-                                console.log(message.sid);
-                                res.json({ messageID: message.sid });
-                              })
-                              .done();
-                        }
-                        else if((newBudget.currentAmount*1.0)/newBudget.budgetLimit >= 0.75) {
-                            twilioClient.messages.create({
-                                body: 'Your budget: ' + newBudget.budgetName + ', is 75% or more to its limit. Watch your spending!',
-                                from: process.env.TWILIO_PHONE_NUMBER,
-                                to: '+1' + fromPhoneNumber
-                              })
-                              .then(message => {
-                                console.log(message.sid);
-                                res.json({ messageID: message.sid });
-                              })
-                              .done();
-                        }
-                    });
-                });
-                BudgetCategories.findOne({_id: params.currentBudget}, function(err, currentBudget){
-                    currentBudget.currentAmount -= transaction.amount;
-                    currentBudget.save();
-                });
                 transaction.budget_id = params.newBudget;
+                if(smsNotifications) {
+                    BudgetCategories.findOne({_id: params.newBudget, isDeleted: false, userID: userID}, async function(err, newBudget){
+                        const budgetAmount = await getCurrentAmount(newBudget._id, userID);
+                        sms.sendBudgetWarningSMS(fromPhoneNumber, newBudget.budgetName, newBudget.budgetLimt, budgetAmount);
+                    });
+                }
+                
             }
 
             transaction.save(function(err) {

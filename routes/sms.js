@@ -259,15 +259,39 @@ const sendTransactionSMSToUser = function(userID, budgetID) {
     user.save();
   });
   });
-
-  
-
 };
+
+const sendBudgetWarningSMS = function(phoneNumber, budgetName, budgetLimit, budgetAmount) {
+  if(budgetAmount > budgetLimit) {
+    twilioClient.messages.create({
+      body: 'Your budget: ' + budgetName + 'has gone overbudget.',
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: '+1' + phoneNumber
+    })
+    .then(message => {
+      console.log(message.sid);
+    })
+    .done();
+  }
+  else if((budgetAmount * 1.0) / budgetLimit >= 0.75 ) {
+    twilioClient.messages.create({
+      body: 'Your budget: ' + budgetName + ', is 75% or more to its limit. Watch your spending!',
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: '+1' + phoneNumber
+    })
+    .then(message => {
+      console.log(message.sid);
+    })
+    .done();
+  }
+  
+}
 
 module.exports = {
   sendTestSMS,
   receiveSMS,
   sendSMSVerificationCode,
   verifySMSVerificationCode,
-  sendTransactionSMSToUser
+  sendTransactionSMSToUser,
+  sendBudgetWarningSMS
 }
