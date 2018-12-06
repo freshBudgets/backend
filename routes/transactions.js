@@ -226,13 +226,6 @@ async function getCurrentAmount(budgetID, userID) {
     });
 }
 
-async function testGetCurrentAmount(req, res) {
-    const userID = req.decoded._id;
-    const budgetID = req.body.budgetID;
-    const currAmt = await getCurrentAmount(budgetID, userID);
-    res.json({currAmt});
-}
-
 // returns all transactions from a specific budget for current user
 async function getFromBudget(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
@@ -365,6 +358,6 @@ module.exports = {
     getAll,
     getFromBudget,
     getTransactionTime,
-    saveTransaction
+    saveTransaction,
     getCurrentAmount
 };
