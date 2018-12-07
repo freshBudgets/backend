@@ -262,14 +262,9 @@ const sendTransactionSMSToUser = function(userID, budgetID) {
 };
 
 const sendBudgetWarningSMS = function(phoneNumber, budgetName, budgetLimit, budgetAmount) {
-  console.log('number '+phoneNumber);
-  console.log('name' + budgetName);
-  console.log('limit '+budgetLimit);
-  console.log('amount '+budgetAmount);
-  console.log('percent ' + (budgetAmount * 1.0) / budgetLimit);
   if(budgetAmount > budgetLimit) {
     twilioClient.messages.create({
-      body: 'Your budget: ' + budgetName + 'has gone overbudget.',
+      body: 'Your budget: ' + budgetName + ' has gone overbudget.',
       from: process.env.TWILIO_PHONE_NUMBER,
       to: '+1' + phoneNumber
     })
@@ -289,8 +284,7 @@ const sendBudgetWarningSMS = function(phoneNumber, budgetName, budgetLimit, budg
     })
     .done();
   }
-  
-}
+};
 
 module.exports = {
   sendTestSMS,
