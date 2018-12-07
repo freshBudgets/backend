@@ -39,7 +39,7 @@ const addTransaction = function(req, res) {
                 console.log("hit2");
                 const budgetAmount = await getCurrentAmount(budget._id, userID);
                 console.log(budgetAmount);
-                sms.sendBudgetWarningSMS(phoneNumber, budget.budgetName, budget.budgetLimt, budgetAmount);
+                sms.sendBudgetWarningSMS(phoneNumber, budget.budgetName, budget.budgetLimit, budgetAmount);
             });
         }
         
