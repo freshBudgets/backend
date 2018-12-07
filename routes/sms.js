@@ -25,21 +25,33 @@ const receiveSMS = function(req, res) {
   console.log(messageBody);
   if(messageBody.length == 1 && messageBody[0].toLowerCase() != "commands") {
     handleNewTransaction(messageBody[0], fromPhoneNumber);
+    res.end();
+    return;
   }
   else if(messageBody.length == 1 && messageBody[0].toLowerCase() == "commands") {
     handleSendCommands(fromPhoneNumber);
+    res.end();
+    return;
   }
   else if(messageBody.length == 4 && messageBody[0].toLowerCase() == "create" && messageBody[1].toLowerCase() == "budget") {
     handleCreateNewBudget(messageBody, fromPhoneNumber);
+    res.end();
+    return;
   }
   else if(messageBody.length == 3 && messageBody[0].toLowerCase() == "delete" && messageBody[1].toLowerCase() == "budget") {
     handleDeleteBudget(messageBody, fromPhoneNumber);
+    res.end();
+    return;
   }
   else if(messageBody.length == 2 && messageBody[0].toLowerCase() == "budget" && messageBody[1].toLowerCase() == "summary") {
     handleGeneralBudgetSummary(messageBody, fromPhoneNumber);
+    res.end();
+    return;
   }
   else if(messageBody.length == 3 && messageBody[0].toLowerCase() == "budget" && messageBody[1].toLowerCase() == "summary") {
     handleSpecificBudgetSummary(messageBody, fromPhoneNumber);
+    res.end();
+    return;
   }
   else{
     twilioClient.messages.create({
@@ -52,9 +64,7 @@ const receiveSMS = function(req, res) {
       res.json({ messageID: message.sid });
     })
     .done();
-    res.end();
   }
-  res.end();
 };
 
 const handleGeneralBudgetSummary = function(messageBody, fromPhoneNumber) {
@@ -90,7 +100,7 @@ const handleSpecificBudgetSummary = function(messageBody, fromPhoneNumber) {
         summaryString = "Budget: " + budget.budgetName + " - Spent: $" + budget.currentAmount + " Limit: $" + budget.budgetLimit;
       }
       else {
-        summaryString = "Budget: " + budgetName + " not found."; 
+        summaryString = "Budget: " + budgetName + " not found.";
       }
       console.log(summaryString);
       twilioClient.messages.create({
@@ -182,7 +192,7 @@ const handleNewTransaction = function(budgetName, fromPhoneNumber) {
 
 const handleSendCommands = function(fromPhoneNumber){
   twilioClient.messages.create({
-    body: 'List of SMS commands freshBudgets supports.\n' + 
+    body: 'List of SMS commands freshBudgets supports.\n' +
           'create budget [budgetName] [budgetLimit]\n' +
           'delete budget [budgetName]\n' +
           'budget summary\n' +
@@ -243,7 +253,7 @@ const sendTransactionSMSToUser = function(userID, budgetID) {
     transaction = transactions[0];
    Users.findOne({_id: userID}, function(err, user){
     twilioClient.messages.create({
-      body: 'Fresh Budgets received a new Transaction!\n' + 
+      body: 'Fresh Budgets received a new Transaction!\n' +
       'Name: ' + transaction.name + '\n' +
       'Amount: ' + transaction.amount + '\n' +
       'Date: ' + transaction.date + '\n' +
