@@ -2,8 +2,11 @@ const mongoose   = require('mongoose');
 const passport   = require('passport');
 const crypto     = require('crypto');
 const jwt        = require('jsonwebtoken');
-const Bills      = mongoose.model("Bills")
+const Bills      = mongoose.model("Bills");
+const Users      = mongoose.model("Users");
 const async      = require('async');
+const cron       = require('node-cron')
+const nodemailer = require('nodemailer')
 
 // adds a bill to the bills collection
 // TESTED
@@ -186,12 +189,26 @@ const getAll = function(req, res) {
     });
 }
 
-// checks if there are any bills coming up. If there are, email user
-// email functionality currently not implemented
-// TODO implement email functionality
-const checkBills = function(req, res) {
-    var params = req.body;
+
+// Runs checkbills every day of the week
+/* cron.schedule('* * * * Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday', () => { */
+cron.schedule('* * * * Sunday,Monday,Tuesday,Wednesday,Thursday,Friday', () => {
+    Users.find({}, function(err, users) {
+        async.each(users, function(user, err) {
+            checkBills(user._id);
+        })
+    });
+});
+
+// actual route/endpoint to hit to manually check bills
+const checkBillsRoute = function(req, res) {
     const userID = mongoose.Types.ObjectId(req.decoded._id);
+    checkBills(userID);
+    res.json({});
+}
+
+// checks if there are any bills coming up. If there are, email user
+const checkBills = function(userID) {
     const today = new Date();
     const currentDay = today.getDate();
     const currentMonth = today.getMonth();
@@ -214,9 +231,8 @@ const checkBills = function(req, res) {
         daysInMonth = 31;
     else if(currentMonth == 2)
         daysInMonth = 28;
-
     Bills.find({userId: userID}, function(err, bills) {
-        async.each(bills, function(bill, err) {
+        async.each(bills, async function(bill, err) {
             if(bill.isDeleted != true) {
                 if(bill.dayOfMonthDue < currentDay) {
                     remaining = daysInMonth - currentDay + bill.dayOfMonthDue;
@@ -225,17 +241,47 @@ const checkBills = function(req, res) {
                     remaining = bill.dayOfMonthDue - currentDay;
                 }
 
-                // Nothing else happens here
-                console.log("todays date: " + currentDay);
-                console.log("bill due date: " + bill.dayOfMonthDue);
-                console.log("remaining: " + remaining);
+                if(remaining < 4) {
+                    const query = Users.findOne({_id: userID});
+                    const queryResult = await query.exec();
+                    sendMail(queryResult.email, bill.name, remaining);
+                }
             }
         });
     });
-
-    res.json({});
-
     return;
+}
+
+
+
+const sendMail = function(userEmail, name, remaining) {
+    let transporter = nodemailer.createTransport({
+        service: 'gmail', 
+        secure: false,
+        port: 25,
+        auth: {
+            user: 'freshbudgets@gmail.com',
+            pass: 'thefreshest'
+        },
+        tls: {
+            rejectUnauthorized: false
+        }
+    });
+
+    let HelperOptions = {
+        from: 'Fresh Budgets <freshbudgets@gmail.com>',
+        to: userEmail,
+        subject: 'Upcoming bill due date',
+        text: 'Your bill for \'' + name + '\' is due in ' + remaining + ' days.'
+    };
+
+    transporter.sendMail(HelperOptions, (error, info) => {
+        if(error) {
+            return console.log(error);
+        }
+        console.log("The message was sent");
+        console.log(info)
+    });
 }
 
 
@@ -243,6 +289,8 @@ module.exports = {
     addBill,
     updateBill,
     removeBill,
+    getAll, 
     checkBills,
-    getAll
+    checkBillsRoute,
+    sendMail
 };
