@@ -170,7 +170,7 @@ const handleNewTransaction = function(budgetName, fromPhoneNumber) {
         budget.currentAmount += transaction.amount;
         transaction.save(function(err) {
           budget.save(function(err) {
-            BudgetCategories.findOne({budgetName: 'Uncategorized Transactions', user: userID}, function(err, uncategorizedBudget) {
+            BudgetCategories.findOne({budgetName: 'Uncategorized Transactions', user: userID, isDeleted: false}, function(err, uncategorizedBudget) {
               sendTransactionSMSToUser(userID, uncategorizedBudget._id);
             });
           });
