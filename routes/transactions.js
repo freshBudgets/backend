@@ -16,44 +16,48 @@ const addTransaction = function(req, res) {
     Users.findOne({_id: userID}, function(err, user) {
         phoneNumber = user.phoneNumber;
         smsNotifications = user.smsNotifications;
-    });
-    //Check if all needed information is sent in request
-    if(!params.amount || !params.date || !params.name || !params.budget_id ) {
-        res.json({
-            success: false,
-            message: 'Not enough information to update settings'
-        });
-        return;
-    }
 
-    var newTransaction = new Transactions();
-    newTransaction.amount = params.amount;
-    newTransaction.date = params.date;
-    newTransaction.name = params.name;
-    newTransaction.originalName = params.name;
-    newTransaction.budget_id = params.budget_id;
-    newTransaction.user_id = userID;
-    if(smsNotifications) {
-        BudgetCategories.findOne({userID: userID, _id: params.budget_id, isDeleted: false}, async function(err, budget) {
-            const budgetAmount = await getCurrentAmount(budget._id, userID);
-            sms.sendBudgetWarningSMS(phoneNumber, budget.budgetName, budget.budgetLimt, budgetAmount);
-        });
-    }
-    
-    newTransaction.save(function(err){
-        if (err){
+        if(!params.amount || !params.date || !params.name || !params.budget_id ) {
             res.json({
                 success: false,
-                message: 'Could not add new transaction.'
+                message: 'Not enough information to update settings'
+            });
+            return;
+        }
+    
+        var newTransaction = new Transactions();
+        newTransaction.amount = params.amount;
+        newTransaction.date = params.date;
+        newTransaction.name = params.name;
+        newTransaction.originalName = params.name;
+        newTransaction.budget_id = params.budget_id;
+        newTransaction.user_id = userID;
+        console.log('smsNotifications: ' + smsNotifications);
+        if(smsNotifications) {
+            BudgetCategories.findOne({userID: userID, _id: params.budget_id, isDeleted: false}, async function(err, budget) {
+                const budgetAmount = await getCurrentAmount(budget._id, userID);
+                console.log(budgetAmount);
+                sms.sendBudgetWarningSMS(phoneNumber, budget.budgetName, budget.budgetLimt, budgetAmount);
             });
         }
-        else{
-            res.json({
-                success: true,
-                message: 'Successfully added transaction!'
-            })
-        }
+        
+        newTransaction.save(function(err){
+            if (err){
+                res.json({
+                    success: false,
+                    message: 'Could not add new transaction.'
+                });
+            }
+            else{
+                res.json({
+                    success: true,
+                    message: 'Successfully added transaction!'
+                })
+            }
+        });
     });
+    //Check if all needed information is sent in request
+    
 }
 
 // updates an existing transaction
@@ -66,65 +70,65 @@ const updateTransaction = function(req, res) {
     Users.findOne({_id: userID}, function(err, user) {
         fromPhoneNumber = user.phoneNumber;
         smsNotifications = user.smsNotifications;
-    });
-    //Check if all needed information is sent in request
-    if(!params.transaction_id || !params.amount || !params.date || !params.name ) {
-        res.json({
-            success: false,
-            message: 'Not enough information to update settings'
-        });
-        return;
-    }
+            //Check if all needed information is sent in request
+        if(!params.transaction_id || !params.amount || !params.date || !params.name ) {
+            res.json({
+                success: false,
+                message: 'Not enough information to update settings'
+            });
+            return;
+        }
 
-    Transactions.findOne({_id: params.transaction_id}, function(err, transaction) {
-        if(err) {
-            res.json({
-                success: false,
-                message: 'Error finding transaction'
-            });
-        }  
-        else if(transaction == null) {
-            res.json({
-                success: false,
-                message: 'Transaction does not exist'
-            });
-        }
-        else if(transaction.user_id != userID) {
-            res.json({
-                success: false,
-                message: 'This user is not authorized to edit this transaction'
-            });
-        }
-        else {
-            transaction.amount = params.amount;
-            transaction.date = params.date;
-            transaction.name = params.name;
-            if (params.currentBudget != params.newBudget) {
-                transaction.budget_id = params.newBudget;
-                if(smsNotifications) {
-                    BudgetCategories.findOne({_id: params.newBudget, isDeleted: false, userID: userID}, async function(err, newBudget){
-                        const budgetAmount = await getCurrentAmount(newBudget._id, userID);
-                        sms.sendBudgetWarningSMS(fromPhoneNumber, newBudget.budgetName, newBudget.budgetLimt, budgetAmount);
-                    });
-                }
-                
+        Transactions.findOne({_id: params.transaction_id}, function(err, transaction) {
+            if(err) {
+                res.json({
+                    success: false,
+                    message: 'Error finding transaction'
+                });
+            }  
+            else if(transaction == null) {
+                res.json({
+                    success: false,
+                    message: 'Transaction does not exist'
+                });
             }
+            else if(transaction.user_id != userID) {
+                res.json({
+                    success: false,
+                    message: 'This user is not authorized to edit this transaction'
+                });
+            }
+            else {
+                transaction.amount = params.amount;
+                transaction.date = params.date;
+                transaction.name = params.name;
+                if (params.currentBudget != params.newBudget) {
+                    transaction.budget_id = params.newBudget;
+                    if(smsNotifications) {
+                        BudgetCategories.findOne({_id: params.newBudget, isDeleted: false, userID: userID}, async function(err, newBudget){
+                            const budgetAmount = await getCurrentAmount(newBudget._id, userID);
+                            sms.sendBudgetWarningSMS(fromPhoneNumber, newBudget.budgetName, newBudget.budgetLimt, budgetAmount);
+                        });
+                    }
+                    
+                }
 
-            transaction.save(function(err) {
-                if(err) {
-                    res.json({
-                        success: false,
-                        message: 'Could not save transaction'
-                    });
-                }
-                else{
-                    res.json({
-                        success: true,
-                        message: 'Successfully saved transaction'
-                    });
-                }
-            });
-        }
+                transaction.save(function(err) {
+                    if(err) {
+                        res.json({
+                            success: false,
+                            message: 'Could not save transaction'
+                        });
+                    }
+                    else{
+                        res.json({
+                            success: true,
+                            message: 'Successfully saved transaction'
+                        });
+                    }
+                });
+            }
+        });
     });
 }
 
