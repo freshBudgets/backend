@@ -192,7 +192,7 @@ const getAll = function(req, res) {
 
 // Runs checkbills every day of the week
 /* cron.schedule('* * * * Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday', () => { */
-cron.schedule('* * * * Sunday,Monday,Tuesday,Wednesday,Thursday,Friday', () => {
+cron.schedule('0 0 0 * * *', () => {
     Users.find({}, function(err, users) {
         async.each(users, function(user, err) {
             checkBills(user._id);
