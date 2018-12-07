@@ -34,7 +34,9 @@ const addTransaction = function(req, res) {
         newTransaction.user_id = userID;
         console.log('smsNotifications: ' + smsNotifications);
         if(smsNotifications) {
+            console.log("hit");
             BudgetCategories.findOne({userID: userID, _id: params.budget_id, isDeleted: false}, async function(err, budget) {
+                console.log("hit2");
                 const budgetAmount = await getCurrentAmount(budget._id, userID);
                 console.log(budgetAmount);
                 sms.sendBudgetWarningSMS(phoneNumber, budget.budgetName, budget.budgetLimt, budgetAmount);
